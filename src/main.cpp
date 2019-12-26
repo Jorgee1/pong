@@ -12,122 +12,14 @@
 
 int AnchoP = 640,LargoP = 480,Cor_x = AnchoP/2,Cor_y = LargoP/2,Vel = 4,Vel_x = 5,Vel_y = Vel/2,MCor_x = 50,MCor_y;
 
-int ContVel = 0,TCor_x = AnchoP-70,TCor_y = LargoP/2,IA_Level = 3,Temp_IMG;
+int ContVel = 0,TCor_x = AnchoP-70,TCor_y = LargoP/2,IA_Level = 1,Temp_IMG;
 
 SDL_Rect rect[3];
 
 int score[2] = {0,0};
-/*
-void SDL_Cuadrado(int x,int y,int h,int w){
-
-    SDL_Rect Cuadrado;
-    Cuadrado.x = x;
-    Cuadrado.y = y;
-    Cuadrado.h = h;
-    Cuadrado.w = w;
-    SDL_SetRenderDrawColor(RenderP,0xFF,0,0,0xFF);
-    SDL_RenderFillRect(RenderP,&Cuadrado);
-}
-
-void cargador(){
-    Font = TTF_OpenFont("FONTS/arial.ttf",20);
-    SDL_ShowCursor(SDL_DISABLE);
-    Puntaje1.Cargar_Texto(to_string(Puntaje[0]),Blanco);
-    Puntaje2.Cargar_Texto(to_string(Puntaje[1]),Blanco);
-    Temp_IMG = Puntaje1.GetAncho();
-}
-
-
-void Mover(){
-    SDL_GetMouseState(NULL,&MCor_y);
-    rect[1].h = 100;
-    rect[1].w = 20;
-    if(MCor_y+(rect[1].h/2)+4+rect[0].h>LargoP){
-        MCor_y = LargoP-(rect[1].h/2)-4-rect[0].h;
-    }
-    if(MCor_y-(rect[1].h/2)-4-rect[0].h<0){
-        MCor_y = rect[1].h/2+4+rect[0].h;
-    }
-    rect[1].x = MCor_x;
-    rect[1].y = MCor_y-(rect[1].h/2);
-    SDL_RenderFillRect(RenderP,&rect[1]);
-}
 
 void IA(){
-    rect[2].h = 100;
-    rect[2].w = 20;
-    rect[2].x = AnchoP-70;
-    rect[2].y = rect[0].y-(rect[2].h/2);
-    if((TCor_y+(rect[2].h/2))<rect[0].y){
-        TCor_y = TCor_y + IA_Level;
-    }
-    if((TCor_y+(rect[2].h/2))>rect[0].y){
-        TCor_y = TCor_y - IA_Level;
-    }
-    if(TCor_y+((rect[2].h+rect[0].h+4))>LargoP){
-        TCor_y = LargoP-(rect[2].h)-rect[0].h-4;
-    }
-    if(TCor_y<rect[0].h+4){
-        TCor_y = rect[0].h+4;
-    }
-    rect[2].x = TCor_x;
-    rect[2].y = TCor_y;
-    SDL_RenderFillRect(RenderP,&rect[2]);
-}
 
-void Impresor_P(){
-    int Col_XoY[2] = {0,0};
-    SDL_SetRenderDrawColor(RenderP,0xFF,0xFF,0xFF,0xFF);
-    Puntaje1.Cargar_Texto(std::to_string(Puntaje[0]),Blanco);
-    Puntaje2.Cargar_Texto(std::to_string(Puntaje[1]),Blanco);
-    rect[0].h = 10;
-    rect[0].w = 10;
-    rect[0].x = Cor_x;
-    rect[0].y = Cor_y;
-
-    Cor_x = Cor_x + Vel_x;
-    Cor_y = Cor_y + Vel_y;
-
-    Mover();
-    IA();
-    switch(ContVel){
-        case 1: if((Vel_y == (Vel/2))||(Vel_y == -(Vel/2))){Vel_y = Vel_y*2;}break;
-        case 2: if((Vel_y == (Vel))  || (Vel_y == -(Vel))){Vel_y = Vel_y/2;}break;
-    }
-    if(Colision(rect[0].h,Col_XoY) == true){
-        if(Col_XoY[0] == 1){
-            Vel_x = -1*Vel_x;
-            Col_XoY[0] = 0;
-        }
-        if(Col_XoY[1] == 1){
-            Vel_y = -1*Vel_y;
-            Col_XoY[1] = 0;
-        }
-    }
-    SDL_SetRenderDrawColor(RenderP,0xFF,0xFF,0xFF,0xFF);
-    SDL_RenderFillRect(RenderP,&rect[0]);
-}
-*/
-
-void IA(){
-    rect[2].h = 100;
-    rect[2].w = 20;
-    rect[2].x = AnchoP-70;
-    rect[2].y = rect[0].y-(rect[2].h/2);
-    if((TCor_y+(rect[2].h/2))<rect[0].y){
-        TCor_y = TCor_y + IA_Level;
-    }
-    if((TCor_y+(rect[2].h/2))>rect[0].y){
-        TCor_y = TCor_y - IA_Level;
-    }
-    if(TCor_y+((rect[2].h+rect[0].h+4))>LargoP){
-        TCor_y = LargoP-(rect[2].h)-rect[0].h-4;
-    }
-    if(TCor_y<rect[0].h+4){
-        TCor_y = rect[0].h+4;
-    }
-    rect[2].x = TCor_x;
-    rect[2].y = TCor_y;
 }
 
 bool Verificar_collision(int A_x,int A_y,int B_x,int B_y,int Detect[]){
@@ -339,19 +231,37 @@ int main( int argc, char* args[] ){
             window.clear_screen();
 
 
-
-
-
-            //Impresor_P();
-
+            //Movement Player
             if(action->get_state(action->BUTTON_MOVE_UP)){
                 rect[PLAYER1].y-=5;
             }else if(action->get_state(action->BUTTON_MOVE_DOWN)){
                 rect[PLAYER1].y+=5;
             }
 
-            IA();
+            if(rect[PLAYER1].y<0){
+                rect[PLAYER1].y = 0;
+            }else if(rect[PLAYER1].y + rect[PLAYER1].h>SCREEN_HEIGHT){
+                rect[PLAYER1].y = SCREEN_HEIGHT - rect[PLAYER1].h;
+            }
 
+            // Movement computer
+            rect[PLAYER2].y = rect[0].y-(rect[PLAYER2].h/2);
+            if((TCor_y+(rect[PLAYER2].h/2))<rect[0].y){
+                TCor_y = TCor_y + IA_Level;
+            }
+            if((TCor_y+(rect[PLAYER2].h/2))>rect[0].y){
+                TCor_y = TCor_y - IA_Level;
+            }
+            if(TCor_y+((rect[PLAYER2].h+rect[0].h+4))>SCREEN_HEIGHT){
+                TCor_y = LargoP-(rect[PLAYER2].h)-rect[0].h-4;
+            }
+            if(TCor_y<rect[0].h+4){
+                TCor_y = rect[0].h+4;
+            }
+            rect[PLAYER2].x = TCor_x;
+            rect[PLAYER2].y = TCor_y;
+
+            // Movement ball
             rect[BALL].x = Cor_x;
             rect[BALL].y = Cor_y;
 

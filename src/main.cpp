@@ -14,8 +14,9 @@ int AnchoP = 640,LargoP = 480,Cor_x = AnchoP/2,Cor_y = LargoP/2,Vel = 4,Vel_x = 
 
 int ContVel = 0,TCor_x = AnchoP-70,TCor_y = LargoP/2,IA_Level = 3,Temp_IMG;
 
+SDL_Rect rect[3];
 
-
+int score[2] = {0,0};
 /*
 void SDL_Cuadrado(int x,int y,int h,int w){
 
@@ -36,10 +37,97 @@ void cargador(){
     Temp_IMG = Puntaje1.GetAncho();
 }
 
-void Reset(){
-    Cor_x = AnchoP/2,Cor_y = LargoP/2;
-    Vel_y = Vel/2;
-    ContVel = 0;
+
+void Mover(){
+    SDL_GetMouseState(NULL,&MCor_y);
+    rect[1].h = 100;
+    rect[1].w = 20;
+    if(MCor_y+(rect[1].h/2)+4+rect[0].h>LargoP){
+        MCor_y = LargoP-(rect[1].h/2)-4-rect[0].h;
+    }
+    if(MCor_y-(rect[1].h/2)-4-rect[0].h<0){
+        MCor_y = rect[1].h/2+4+rect[0].h;
+    }
+    rect[1].x = MCor_x;
+    rect[1].y = MCor_y-(rect[1].h/2);
+    SDL_RenderFillRect(RenderP,&rect[1]);
+}
+
+void IA(){
+    rect[2].h = 100;
+    rect[2].w = 20;
+    rect[2].x = AnchoP-70;
+    rect[2].y = rect[0].y-(rect[2].h/2);
+    if((TCor_y+(rect[2].h/2))<rect[0].y){
+        TCor_y = TCor_y + IA_Level;
+    }
+    if((TCor_y+(rect[2].h/2))>rect[0].y){
+        TCor_y = TCor_y - IA_Level;
+    }
+    if(TCor_y+((rect[2].h+rect[0].h+4))>LargoP){
+        TCor_y = LargoP-(rect[2].h)-rect[0].h-4;
+    }
+    if(TCor_y<rect[0].h+4){
+        TCor_y = rect[0].h+4;
+    }
+    rect[2].x = TCor_x;
+    rect[2].y = TCor_y;
+    SDL_RenderFillRect(RenderP,&rect[2]);
+}
+
+void Impresor_P(){
+    int Col_XoY[2] = {0,0};
+    SDL_SetRenderDrawColor(RenderP,0xFF,0xFF,0xFF,0xFF);
+    Puntaje1.Cargar_Texto(std::to_string(Puntaje[0]),Blanco);
+    Puntaje2.Cargar_Texto(std::to_string(Puntaje[1]),Blanco);
+    rect[0].h = 10;
+    rect[0].w = 10;
+    rect[0].x = Cor_x;
+    rect[0].y = Cor_y;
+
+    Cor_x = Cor_x + Vel_x;
+    Cor_y = Cor_y + Vel_y;
+
+    Mover();
+    IA();
+    switch(ContVel){
+        case 1: if((Vel_y == (Vel/2))||(Vel_y == -(Vel/2))){Vel_y = Vel_y*2;}break;
+        case 2: if((Vel_y == (Vel))  || (Vel_y == -(Vel))){Vel_y = Vel_y/2;}break;
+    }
+    if(Colision(rect[0].h,Col_XoY) == true){
+        if(Col_XoY[0] == 1){
+            Vel_x = -1*Vel_x;
+            Col_XoY[0] = 0;
+        }
+        if(Col_XoY[1] == 1){
+            Vel_y = -1*Vel_y;
+            Col_XoY[1] = 0;
+        }
+    }
+    SDL_SetRenderDrawColor(RenderP,0xFF,0xFF,0xFF,0xFF);
+    SDL_RenderFillRect(RenderP,&rect[0]);
+}
+*/
+
+void IA(){
+    rect[2].h = 100;
+    rect[2].w = 20;
+    rect[2].x = AnchoP-70;
+    rect[2].y = rect[0].y-(rect[2].h/2);
+    if((TCor_y+(rect[2].h/2))<rect[0].y){
+        TCor_y = TCor_y + IA_Level;
+    }
+    if((TCor_y+(rect[2].h/2))>rect[0].y){
+        TCor_y = TCor_y - IA_Level;
+    }
+    if(TCor_y+((rect[2].h+rect[0].h+4))>LargoP){
+        TCor_y = LargoP-(rect[2].h)-rect[0].h-4;
+    }
+    if(TCor_y<rect[0].h+4){
+        TCor_y = rect[0].h+4;
+    }
+    rect[2].x = TCor_x;
+    rect[2].y = TCor_y;
 }
 
 bool Verificar_collision(int A_x,int A_y,int B_x,int B_y,int Detect[]){
@@ -140,17 +228,23 @@ bool Verificar_collision_IA(int A_x,int A_y,int B_x,int B_y,int Detect[]){
     return false;
 }
 
+void Reset(){
+    Cor_x = AnchoP/2,Cor_y = LargoP/2;
+    Vel_y = Vel/2;
+    ContVel = 0;
+}
+
 bool Colision(int Dim,int Detect[2]){
     Verificar_collision(rect[0].x,rect[0].y,rect[1].x,rect[1].y,Detect);
     Verificar_collision_IA(rect[0].x,rect[0].y,rect[2].x,rect[2].y,Detect);
     if(Cor_x>(AnchoP-Dim)){
         //Detect[0] = 1;
-        Puntaje[0]++;
+        score[0]++;
         Reset();
     }
     if(Cor_x<0){
         //Detect[0] = 1;
-        Puntaje[1]++;
+        score[1]++;
         Reset();
     }
     if(Cor_y>(LargoP-Dim)){
@@ -170,83 +264,11 @@ bool Colision(int Dim,int Detect[2]){
     return false;
 }
 
-void Mover(){
-    SDL_GetMouseState(NULL,&MCor_y);
-    rect[1].h = 100;
-    rect[1].w = 20;
-    if(MCor_y+(rect[1].h/2)+4+rect[0].h>LargoP){
-        MCor_y = LargoP-(rect[1].h/2)-4-rect[0].h;
-    }
-    if(MCor_y-(rect[1].h/2)-4-rect[0].h<0){
-        MCor_y = rect[1].h/2+4+rect[0].h;
-    }
-    rect[1].x = MCor_x;
-    rect[1].y = MCor_y-(rect[1].h/2);
-    SDL_RenderFillRect(RenderP,&rect[1]);
-}
-
-void IA(){
-    rect[2].h = 100;
-    rect[2].w = 20;
-    rect[2].x = AnchoP-70;
-    rect[2].y = rect[0].y-(rect[2].h/2);
-    if((TCor_y+(rect[2].h/2))<rect[0].y){
-        TCor_y = TCor_y + IA_Level;
-    }
-    if((TCor_y+(rect[2].h/2))>rect[0].y){
-        TCor_y = TCor_y - IA_Level;
-    }
-    if(TCor_y+((rect[2].h+rect[0].h+4))>LargoP){
-        TCor_y = LargoP-(rect[2].h)-rect[0].h-4;
-    }
-    if(TCor_y<rect[0].h+4){
-        TCor_y = rect[0].h+4;
-    }
-    rect[2].x = TCor_x;
-    rect[2].y = TCor_y;
-    SDL_RenderFillRect(RenderP,&rect[2]);
-}
-
-void Impresor_P(){
-    int Col_XoY[2] = {0,0};
-    SDL_SetRenderDrawColor(RenderP,0xFF,0xFF,0xFF,0xFF);
-    Puntaje1.Cargar_Texto(std::to_string(Puntaje[0]),Blanco);
-    Puntaje2.Cargar_Texto(std::to_string(Puntaje[1]),Blanco);
-    rect[0].h = 10;
-    rect[0].w = 10;
-    rect[0].x = Cor_x;
-    rect[0].y = Cor_y;
-
-    Cor_x = Cor_x + Vel_x;
-    Cor_y = Cor_y + Vel_y;
-
-    Mover();
-    IA();
-    switch(ContVel){
-        case 1: if((Vel_y == (Vel/2))||(Vel_y == -(Vel/2))){Vel_y = Vel_y*2;}break;
-        case 2: if((Vel_y == (Vel))  || (Vel_y == -(Vel))){Vel_y = Vel_y/2;}break;
-    }
-    if(Colision(rect[0].h,Col_XoY) == true){
-        if(Col_XoY[0] == 1){
-            Vel_x = -1*Vel_x;
-            Col_XoY[0] = 0;
-        }
-        if(Col_XoY[1] == 1){
-            Vel_y = -1*Vel_y;
-            Col_XoY[1] = 0;
-        }
-    }
-    SDL_SetRenderDrawColor(RenderP,0xFF,0xFF,0xFF,0xFF);
-    SDL_RenderFillRect(RenderP,&rect[0]);
-}
-*/
-
 int main( int argc, char* args[] ){
     int SCREEN_WIDTH  = 640;
     int SCREEN_HEIGHT = 480;
     int TEXT_SIZE     =  40;
 
-    int SCORE[2] = {0,0};
     
     enum entity{
         BALL,
@@ -265,7 +287,7 @@ int main( int argc, char* args[] ){
     SDL_Color COLOR_BLUE  = {0x00, 0x00, 0xFF, 0xFF};
     SDL_Color COLOR_WHITE = {0xFF, 0xFF, 0xFF, 0xFF};
 
-    SDL_Rect rect[3];
+
 
     rect[BALL].x = Cor_x;
     rect[BALL].y = Cor_y;
@@ -322,6 +344,32 @@ int main( int argc, char* args[] ){
 
             //Impresor_P();
 
+            if(action->get_state(action->BUTTON_MOVE_UP)){
+                rect[PLAYER1].y-=5;
+            }else if(action->get_state(action->BUTTON_MOVE_DOWN)){
+                rect[PLAYER1].y+=5;
+            }
+
+            IA();
+
+            rect[BALL].x = Cor_x;
+            rect[BALL].y = Cor_y;
+
+            Cor_x = Cor_x + Vel_x;
+            Cor_y = Cor_y + Vel_y;
+            
+            int Col_XoY[2] = {0,0};
+            if(Colision(rect[BALL].h,Col_XoY) == true){
+                if(Col_XoY[0] == 1){
+                    Vel_x = -1*Vel_x;
+                    Col_XoY[0] = 0;
+                }
+                if(Col_XoY[1] == 1){
+                    Vel_y = -1*Vel_y;
+                    Col_XoY[1] = 0;
+                }
+            }
+
             // Print Characters
             window.set_render_draw_color(COLOR_WHITE);
 
@@ -333,21 +381,21 @@ int main( int argc, char* args[] ){
             // Print UI
             int width = 0;
             width = text_white.get_text_size(
-                std::to_string(SCORE[0])
+                std::to_string(score[0])
             ).w;
 
             text_white.render(
                 SCREEN_WIDTH/2 - width, 0,
-                std::to_string(SCORE[0])
+                std::to_string(score[0])
             );
 
             width = text_white.get_text_size(
-                std::to_string(SCORE[1])
+                std::to_string(score[1])
             ).w;
 
             text_white.render(
                 SCREEN_WIDTH/2, 0,
-                std::to_string(SCORE[1])
+                std::to_string(score[1])
             );
             
 

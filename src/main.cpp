@@ -8,7 +8,12 @@
 #include "texture.h"
 #include "action.h"
 
-bool Verificar_collision(SDL_Rect A, SDL_Rect B, SDL_Point A_VEL, int Detect[]){
+bool Verificar_collision(
+        SDL_Rect A,
+        SDL_Rect B,
+        SDL_Point A_VEL,
+        SDL_Point* collition
+    ){
     /// PARA A
     int A_IZQ = A.x;
     int A_DER = A.x + A.w;
@@ -23,35 +28,55 @@ bool Verificar_collision(SDL_Rect A, SDL_Rect B, SDL_Point A_VEL, int Detect[]){
     if(A_VEL.x>0){
         return false;
     }
-    if((A_ABJ>=B_ARR)&&(A_ARR<=B_ABJ)&&(A_DER>=B_IZQ)&&(A_IZQ<=B_DER)){
-            if( (A_ABJ>=B_ARR) && (A_ABJ<=(B_ARR+(B.h/5))) ){
-                if(A_VEL.y>0){
-                    Detect[1] = 1;
-                    Detect[0] = 1;
-                }else{
-                    Detect[0] = 1;
-                }
-                return true;
+
+    if(
+        (A_ABJ >= B_ARR) &&
+        (A_ARR <= B_ABJ) &&
+        (A_DER >= B_IZQ) &&
+        (A_IZQ <= B_DER)
+    ){
+        if(
+            (A_ABJ >= B_ARR) &&
+            (A_ABJ <= B_ARR+(B.h/5)) 
+        ){
+            if(A_VEL.y > 0){
+                collition->y = 1;
+                collition->x = 1;
+            }else{
+                collition->x = 1;
             }
-            if( (A_ARR<=B_ABJ) && (A_ARR>=(B_ABJ-(B.h/5))) ){
-                if(A_VEL.y<0){
-                    Detect[1] = 1;
-                    Detect[0] = 1;
-                }else{
-                    Detect[0] = 1;
-                }
-                return true;
+            return true;
+        }
+        if(
+            (A_ARR <= B_ABJ) &&
+            (A_ARR >= B_ABJ-(B.h/5)) 
+        ){
+            if(A_VEL.y < 0){
+                collition->y = 1;
+                collition->x = 1;
+            }else{
+                collition->x = 1;
             }
-            if( (A_IZQ<=B_DER) && (A_VEL.x<0) ){
-                Detect[0] = 1;
-                return true;
-            }
+            return true;
+        }
+        if(
+            (A_IZQ <= B_DER) &&
+            (A_VEL.x < 0) 
+        ){
+            collition->x = 1;
+            return true;
+        }
 
     }
     return false;
 }
 
-bool Verificar_collision_IA(SDL_Rect A, SDL_Rect B, SDL_Point A_VEL, int Detect[]){
+bool Verificar_collision_IA(
+        SDL_Rect A,
+        SDL_Rect B,
+        SDL_Point A_VEL,
+        SDL_Point* collition
+    ){
     /// PARA A
     int A_IZQ = A.x;
     int A_DER = A.x + A.w;
@@ -66,29 +91,41 @@ bool Verificar_collision_IA(SDL_Rect A, SDL_Rect B, SDL_Point A_VEL, int Detect[
     if(A_VEL.x<0){
         return false;
     }
-    if((A_ABJ>=B_ARR)&&(A_ARR<=B_ABJ)&&(A_DER>=B_IZQ)&&(A_IZQ<=B_DER)){
-            if( (A_ABJ>=B_ARR) && (A_ABJ<=(B_ARR+(B.h/5)))  ){
-                if(A_VEL.y>0){
-                    Detect[1] = 1;
-                    Detect[0] = 1;
-                }else{
-                    Detect[0] = 1;
-                }
-                return true;
+
+    if(
+        (A_ABJ >= B_ARR) &&
+        (A_ARR <= B_ABJ) &&
+        (A_DER >= B_IZQ) &&
+        (A_IZQ <= B_DER)
+    ){
+        if(
+            (A_ABJ >= B_ARR) &&
+            (A_ABJ <= B_ARR+(B.h/5))
+        ){
+            if(A_VEL.y > 0){
+                collition->y = 1;
+                collition->x = 1;
+            }else{
+                collition->x = 1;
             }
-            if( (A_ARR<=B_ABJ) && (A_ARR>=(B_ABJ-(B.h/5))) ){
-                if(A_VEL.y<0){
-                    Detect[1] = 1;
-                    Detect[0] = 1;
-                }else{
-                    Detect[0] = 1;
-                }
-                return true;
+            return true;
+        }
+        if(
+            (A_ARR <= B_ABJ) &&
+            (A_ARR >= B_ABJ-(B.h/5)) 
+        ){
+            if(A_VEL.y<0){
+                collition->y = 1;
+                collition->x = 1;
+            }else{
+                collition->x = 1;
             }
-            if( (A_DER>=B_IZQ) && (A_VEL.x>0) ){
-                Detect[0] = 1;
-                return true;
-            }
+            return true;
+        }
+        if( (A_DER>=B_IZQ) && (A_VEL.x>0) ){
+            collition->x = 1;
+            return true;
+        }
 
     }
     return false;
@@ -99,15 +136,15 @@ bool Colision(
         SDL_Rect player1,
         SDL_Rect player2,
         SDL_Point vel,
-        int Detect[2]
+        SDL_Point* collition
     ){
-    Verificar_collision(ball, player1, vel, Detect);
-    Verificar_collision_IA(ball, player2, vel, Detect);
+    Verificar_collision(ball, player1, vel, collition);
+    Verificar_collision_IA(ball, player2, vel, collition);
 
-    if(Detect[0] == 1){
+    if(collition->x == 1){
         return true;
     }
-    if(Detect[1] == 1){
+    if(collition->y == 1){
         return true;
     }
     return false;
@@ -118,12 +155,10 @@ int main( int argc, char* args[] ){
     int SCREEN_HEIGHT = 480;
     int TEXT_SIZE     =  40;
     
-    int Col_XoY[2] = {0,0};
-    int score[2]   = {0,0};
-
     int IA_Level = 3;
+    int VEL      = 4;
 
-    int VEL = 4;
+    int score[2]   = {0,0};
 
     enum entity{
         BALL,
@@ -136,8 +171,9 @@ int main( int argc, char* args[] ){
     std::string PATH_FONT = "asset/font/LiberationMono-Regular.ttf";
     std::string PATH_ICON = "asset/icon.bmp";
 
-    SDL_Rect   rect[3];
-    SDL_Point ball_vel;
+    SDL_Rect    rect[3];
+    SDL_Point  ball_vel;
+    SDL_Point collition;
 
     SDL_Color COLOR_BLACK = {0x00, 0x00, 0x00, 0xFF};
     SDL_Color COLOR_RED   = {0xFF, 0x00, 0x00, 0xFF};
@@ -148,20 +184,20 @@ int main( int argc, char* args[] ){
 
     rect[BALL].x =  SCREEN_WIDTH/2;
     rect[BALL].y = SCREEN_HEIGHT/2;
-    rect[BALL].h = 10;
-    rect[BALL].w = 10;
+    rect[BALL].h =  10;
+    rect[BALL].w =  10;
     ball_vel.x =   VEL;
     ball_vel.y = VEL/2;
 
-    rect[PLAYER1].x = 50;
-    rect[PLAYER1].y = 0;
+    rect[PLAYER1].x =  50;
+    rect[PLAYER1].y =   0;
     rect[PLAYER1].h = 100;
-    rect[PLAYER1].w = 20;
+    rect[PLAYER1].w =  20;
 
     rect[PLAYER2].x = SCREEN_WIDTH-70;
-    rect[PLAYER2].y = 0;
+    rect[PLAYER2].y =   0;
     rect[PLAYER2].h = 100;
-    rect[PLAYER2].w = 20;
+    rect[PLAYER2].w =  20;
 
     Window window(
         "Window",
@@ -213,6 +249,7 @@ int main( int argc, char* args[] ){
 
             // Movement computer
             rect[PLAYER2].y = rect[0].y-(rect[PLAYER2].h/2);
+            
             if((rect[PLAYER2].y+(rect[PLAYER2].h/2))<rect[0].y){
                 rect[PLAYER2].y = rect[PLAYER2].y + IA_Level;
             }
@@ -230,42 +267,44 @@ int main( int argc, char* args[] ){
             rect[BALL].x += ball_vel.x;
             rect[BALL].y += ball_vel.y;
             
-            Col_XoY[0] = 0;
-            Col_XoY[1] = 0;
+
 
             if(rect[BALL].x + rect[BALL].w > SCREEN_WIDTH){
                 score[0]++;
                 rect[BALL].x = SCREEN_WIDTH/2;
                 rect[BALL].y = SCREEN_HEIGHT/2;
 
-                ball_vel.y = Vel/2;
+                ball_vel.y = VEL/2;
             }
             if(rect[BALL].x < 0){
                 score[1]++;
                 rect[BALL].x = SCREEN_WIDTH/2;
                 rect[BALL].y = SCREEN_HEIGHT/2;
 
-                ball_vel.y = Vel/2;
+                ball_vel.y = VEL/2;
             }
+
+            collition.x = 0;
+            collition.y = 0;
 
             // Bounce on screen
             if(rect[BALL].y + rect[BALL].h > SCREEN_HEIGHT){
-                Col_XoY[1] = 1;
+                collition.y = 1;
             }
             if(rect[BALL].y<0){
-                Col_XoY[1] = 1;
+                collition.y = 1;
             }
 
             // bounce on each elements
-            if(Colision(rect[BALL], rect[PLAYER1], rect[PLAYER2], ball_vel, Col_XoY) == true){
+            if(Colision(rect[BALL], rect[PLAYER1], rect[PLAYER2], ball_vel, &collition) == true){
 
-                if(Col_XoY[0] == 1){
+                if(collition.x == 1){
                     ball_vel.x = -1*ball_vel.x;
-                    Col_XoY[0] = 0;
+                    collition.x = 0;
                 }
-                if(Col_XoY[1] == 1){
+                if(collition.y == 1){
                     ball_vel.y = -1*ball_vel.y;
-                    Col_XoY[1] = 0;
+                    collition.y = 0;
                 }
             }
 
@@ -280,21 +319,21 @@ int main( int argc, char* args[] ){
             // Print UI
             int width = 0;
             width = text_white.get_text_size(
-                std::to_string(score[0])
+                std::to_string(score[PLAYER1 - 1])
             ).w;
 
             text_white.render(
                 SCREEN_WIDTH/2 - width, 0,
-                std::to_string(score[0])
+                std::to_string(score[PLAYER1 - 1])
             );
 
             width = text_white.get_text_size(
-                std::to_string(score[1])
+                std::to_string(score[PLAYER2 - 1])
             ).w;
 
             text_white.render(
                 SCREEN_WIDTH/2, 0,
-                std::to_string(score[1])
+                std::to_string(score[PLAYER2 - 1])
             );
             
             SDL_RenderDrawLine(

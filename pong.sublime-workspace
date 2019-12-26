@@ -96,7 +96,7 @@
 	"buffers":
 	[
 		{
-			"file": "/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/Makefile",
+			"file": "Makefile",
 			"settings":
 			{
 				"buffer_size": 951,
@@ -105,10 +105,7 @@
 			}
 		},
 		{
-			"contents": "#include <SDL2/SDL.h>\n#include <SDL2/SDL_ttf.h>\n#include <SDL2/SDL_image.h>\n\n#include <string>\n\n#include \"window.h\"\n#include \"texture.h\"\n#include \"action.h\"\n\n\n\nint AnchoP = 640,LargoP = 480,Cor_x = AnchoP/2,Cor_y = LargoP/2,Vel = 4,Vel_x = 5,Vel_y = Vel/2,MCor_x = 50,MCor_y;\n\nint ContVel = 0,TCor_x = AnchoP-70,TCor_y = LargoP/2,IA_Level = 3,Temp_IMG;\n\n\n\n/*\nvoid SDL_Cuadrado(int x,int y,int h,int w){\n\n    SDL_Rect Cuadrado;\n    Cuadrado.x = x;\n    Cuadrado.y = y;\n    Cuadrado.h = h;\n    Cuadrado.w = w;\n    SDL_SetRenderDrawColor(RenderP,0xFF,0,0,0xFF);\n    SDL_RenderFillRect(RenderP,&Cuadrado);\n}\n\nvoid cargador(){\n    Font = TTF_OpenFont(\"FONTS/arial.ttf\",20);\n    SDL_ShowCursor(SDL_DISABLE);\n    Puntaje1.Cargar_Texto(to_string(Puntaje[0]),Blanco);\n    Puntaje2.Cargar_Texto(to_string(Puntaje[1]),Blanco);\n    Temp_IMG = Puntaje1.GetAncho();\n}\n\nvoid Reset(){\n    Cor_x = AnchoP/2,Cor_y = LargoP/2;\n    Vel_y = Vel/2;\n    ContVel = 0;\n}\n\nbool Verificar_collision(int A_x,int A_y,int B_x,int B_y,int Detect[]){\n    int A_IZQ,A_DER,A_ARR,A_ABJ;\n    int B_IZQ,B_DER,B_ARR,B_ABJ;\n\n    /// PARA A\n    A_IZQ = A_x;\n    A_DER = A_x + rect[0].w;\n    A_ARR = A_y;\n    A_ABJ = A_y + rect[0].h;\n    /// PARA B\n    B_IZQ = B_x;\n    B_DER = B_x + rect[1].w;\n    B_ARR = B_y;\n    B_ABJ = B_y + rect[1].h;\n    /// Restriccones\n    if(Vel_x>0){\n        return false;\n    }\n    if((A_ABJ>=B_ARR)&&(A_ARR<=B_ABJ)&&(A_DER>=B_IZQ)&&(A_IZQ<=B_DER)){\n            if( (A_ABJ>=B_ARR) && (A_ABJ<=(B_ARR+(rect[1].h/5))) ){\n                if(Vel_y>0){\n                    Detect[1] = 1;\n                    Detect[0] = 1;\n                }else{\n                    Detect[0] = 1;\n                }\n                ContVel = 1;\n                return true;\n            }\n            if( (A_ARR<=B_ABJ) && (A_ARR>=(B_ABJ-(rect[1].h/5))) ){\n                if(Vel_y<0){\n                    Detect[1] = 1;\n                    Detect[0] = 1;\n                }else{\n                    Detect[0] = 1;\n                }\n                ContVel = 1;\n                return true;\n            }\n            if( (A_IZQ<=B_DER) && (Vel_x<0) ){\n                Detect[0] = 1;\n                ContVel = 2;\n                return true;\n            }\n\n    }\n    return false;\n}\n\nbool Verificar_collision_IA(int A_x,int A_y,int B_x,int B_y,int Detect[]){\n    int A_IZQ,A_DER,A_ARR,A_ABJ;\n    int B_IZQ,B_DER,B_ARR,B_ABJ;\n\n    /// PARA A\n    A_IZQ = A_x;\n    A_DER = A_x + rect[0].w;\n    A_ARR = A_y;\n    A_ABJ = A_y + rect[0].h;\n    /// PARA B\n    B_IZQ = B_x;\n    B_DER = B_x + rect[2].w;\n    B_ARR = B_y;\n    B_ABJ = B_y + rect[2].h;\n    /// Restriccones\n    if(Vel_x<0){\n        return false;\n    }\n    if((A_ABJ>=B_ARR)&&(A_ARR<=B_ABJ)&&(A_DER>=B_IZQ)&&(A_IZQ<=B_DER)){\n            if( (A_ABJ>=B_ARR) && (A_ABJ<=(B_ARR+(rect[2].h/3)))  ){\n                if(Vel_y>0){\n                    Detect[1] = 1;\n                    Detect[0] = 1;\n                }else{\n                    Detect[0] = 1;\n                }\n                ContVel = 1;\n                return true;\n            }\n            if( (A_ARR<=B_ABJ) && (A_ARR>=(B_ABJ-(rect[2].h/3))) ){\n                if(Vel_y<0){\n                    Detect[1] = 1;\n                    Detect[0] = 1;\n                }else{\n                    Detect[0] = 1;\n                }\n                ContVel = 1;\n                return true;\n            }\n            if( (A_DER>=B_IZQ) && (Vel_x>0) ){\n                Detect[0] = 1;\n                ContVel = 2;\n                return true;\n            }\n\n    }\n    return false;\n}\n\nbool Colision(int Dim,int Detect[2]){\n    Verificar_collision(rect[0].x,rect[0].y,rect[1].x,rect[1].y,Detect);\n    Verificar_collision_IA(rect[0].x,rect[0].y,rect[2].x,rect[2].y,Detect);\n    if(Cor_x>(AnchoP-Dim)){\n        //Detect[0] = 1;\n        Puntaje[0]++;\n        Reset();\n    }\n    if(Cor_x<0){\n        //Detect[0] = 1;\n        Puntaje[1]++;\n        Reset();\n    }\n    if(Cor_y>(LargoP-Dim)){\n        Detect[1] = 1;\n    }\n    if(Cor_y<0){\n        Detect[1] = 1;\n    }\n\n\n    if(Detect[0] == 1){\n        return true;\n    }\n    if(Detect[1] == 1){\n        return true;\n    }\n    return false;\n}\n\nvoid Mover(){\n    SDL_GetMouseState(NULL,&MCor_y);\n    rect[1].h = 100;\n    rect[1].w = 20;\n    if(MCor_y+(rect[1].h/2)+4+rect[0].h>LargoP){\n        MCor_y = LargoP-(rect[1].h/2)-4-rect[0].h;\n    }\n    if(MCor_y-(rect[1].h/2)-4-rect[0].h<0){\n        MCor_y = rect[1].h/2+4+rect[0].h;\n    }\n    rect[1].x = MCor_x;\n    rect[1].y = MCor_y-(rect[1].h/2);\n    SDL_RenderFillRect(RenderP,&rect[1]);\n}\n\nvoid IA(){\n    rect[2].h = 100;\n    rect[2].w = 20;\n    rect[2].x = AnchoP-70;\n    rect[2].y = rect[0].y-(rect[2].h/2);\n    if((TCor_y+(rect[2].h/2))<rect[0].y){\n        TCor_y = TCor_y + IA_Level;\n    }\n    if((TCor_y+(rect[2].h/2))>rect[0].y){\n        TCor_y = TCor_y - IA_Level;\n    }\n    if(TCor_y+((rect[2].h+rect[0].h+4))>LargoP){\n        TCor_y = LargoP-(rect[2].h)-rect[0].h-4;\n    }\n    if(TCor_y<rect[0].h+4){\n        TCor_y = rect[0].h+4;\n    }\n    rect[2].x = TCor_x;\n    rect[2].y = TCor_y;\n    SDL_RenderFillRect(RenderP,&rect[2]);\n}\n\nvoid Impresor_P(){\n    int Col_XoY[2] = {0,0};\n    SDL_SetRenderDrawColor(RenderP,0xFF,0xFF,0xFF,0xFF);\n    Puntaje1.Cargar_Texto(std::to_string(Puntaje[0]),Blanco);\n    Puntaje2.Cargar_Texto(std::to_string(Puntaje[1]),Blanco);\n    rect[0].h = 10;\n    rect[0].w = 10;\n    rect[0].x = Cor_x;\n    rect[0].y = Cor_y;\n\n    Cor_x = Cor_x + Vel_x;\n    Cor_y = Cor_y + Vel_y;\n\n    Mover();\n    IA();\n    switch(ContVel){\n        case 1: if((Vel_y == (Vel/2))||(Vel_y == -(Vel/2))){Vel_y = Vel_y*2;}break;\n        case 2: if((Vel_y == (Vel))  || (Vel_y == -(Vel))){Vel_y = Vel_y/2;}break;\n    }\n    if(Colision(rect[0].h,Col_XoY) == true){\n        if(Col_XoY[0] == 1){\n            Vel_x = -1*Vel_x;\n            Col_XoY[0] = 0;\n        }\n        if(Col_XoY[1] == 1){\n            Vel_y = -1*Vel_y;\n            Col_XoY[1] = 0;\n        }\n    }\n    SDL_SetRenderDrawColor(RenderP,0xFF,0xFF,0xFF,0xFF);\n    SDL_RenderFillRect(RenderP,&rect[0]);\n}\n*/\n\nint main( int argc, char* args[] ){\n    int SCREEN_WIDTH  = 640;\n    int SCREEN_HEIGHT = 480;\n    int TEXT_SIZE     =  40;\n\n    int SCORE[2] = {0,0};\n    \n    enum entity{\n        BALL,\n        PLAYER1,\n        PLAYER2\n    };\n\n    bool exit = false;\n\n    std::string PATH_FONT = \"asset/font/LiberationMono-Regular.ttf\";\n    std::string PATH_ICON = \"asset/icon.bmp\";\n\n    SDL_Color COLOR_BLACK = {0x00, 0x00, 0x00, 0xFF};\n    SDL_Color COLOR_RED   = {0xFF, 0x00, 0x00, 0xFF};\n    SDL_Color COLOR_GREEN = {0x00, 0xFF, 0x00, 0xFF};\n    SDL_Color COLOR_BLUE  = {0x00, 0x00, 0xFF, 0xFF};\n    SDL_Color COLOR_WHITE = {0xFF, 0xFF, 0xFF, 0xFF};\n\n    SDL_Rect rect[3];\n\n    rect[BALL].h = 10;\n    rect[BALL].w = 10;\n\n    rect[PLAYER1].h = 100;\n    rect[PLAYER1].w = 20;\n\n    rect[PLAYER2].h = 100;\n    rect[PLAYER2].w = 20;\n\n    Window window(\n        \"Window\",\n        SCREEN_WIDTH,\n        SCREEN_HEIGHT,\n        COLOR_BLACK\n    );\n    window.set_icon(PATH_ICON);\n\n    TextureText text_white(\n        window.get_render(),\n        PATH_FONT,\n        COLOR_WHITE,\n        TEXT_SIZE\n    );\n\n    Action* action = Action::get_instance();\n    action->init(\n        SDL_SCANCODE_Z,\n        SDL_SCANCODE_X,\n        SDL_SCANCODE_RETURN,\n        SDL_SCANCODE_UP,\n        SDL_SCANCODE_DOWN,\n        SDL_SCANCODE_LEFT,\n        SDL_SCANCODE_RIGHT\n    );\n\n    //cargador();\n\n    while(exit == false){\n        if(window.check_exit()){\n            exit = true;\n        }else{\n            window.clear_screen();\n\n\n\n\n\n            //Impresor_P();\n\n            // Print Characters\n            for(int i=0,){\n\n            }\n\n\n            // Print UI\n            int width = 0;\n            width = text_white.get_text_size(\n                std::to_string(SCORE[0])\n            ).w;\n\n            text_white.render(\n                SCREEN_WIDTH/2 - width, 0,\n                std::to_string(SCORE[0])\n            );\n\n            width = text_white.get_text_size(\n                std::to_string(SCORE[1])\n            ).w;\n\n            text_white.render(\n                SCREEN_WIDTH/2, 0,\n                std::to_string(SCORE[1])\n            );\n            \n\n\n            window.set_render_draw_color(COLOR_WHITE);\n            SDL_RenderDrawLine(\n                window.get_render(),\n                SCREEN_WIDTH/2, 0,\n                SCREEN_WIDTH/2, SCREEN_HEIGHT\n            );\n            window.update_screen();\n        }\n    }\n    return 0;\n}\n\n\n\n\n\n\n\n\n",
-			"file": "main.cpp",
-			"file_size": 8780,
-			"file_write_time": 132217952670998290,
+			"file": "src/main.cpp",
 			"settings":
 			{
 				"buffer_size": 8454,
@@ -117,7 +114,7 @@
 			}
 		},
 		{
-			"file": "/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/include/action.h",
+			"file": "include/action.h",
 			"settings":
 			{
 				"buffer_size": 944,
@@ -125,7 +122,7 @@
 			}
 		},
 		{
-			"file": "/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/include/texture.h",
+			"file": "include/texture.h",
 			"settings":
 			{
 				"buffer_size": 1524,
@@ -133,7 +130,7 @@
 			}
 		},
 		{
-			"file": "/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/gitignore",
+			"file": "gitignore",
 			"settings":
 			{
 				"buffer_size": 431,
@@ -142,7 +139,7 @@
 			}
 		},
 		{
-			"file": "/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/include/window.h",
+			"file": "include/window.h",
 			"settings":
 			{
 				"buffer_size": 733,
@@ -331,7 +328,7 @@
 			[
 				{
 					"buffer": 0,
-					"file": "/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/Makefile",
+					"file": "Makefile",
 					"semi_transient": false,
 					"settings":
 					{
@@ -359,7 +356,7 @@
 				},
 				{
 					"buffer": 1,
-					"file": "main.cpp",
+					"file": "src/main.cpp",
 					"semi_transient": false,
 					"settings":
 					{
@@ -370,8 +367,8 @@
 						"selection":
 						[
 							[
-								7609,
-								7609
+								95,
+								95
 							]
 						],
 						"settings":
@@ -381,7 +378,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 4881.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -389,7 +386,7 @@
 				},
 				{
 					"buffer": 2,
-					"file": "/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/include/action.h",
+					"file": "include/action.h",
 					"semi_transient": false,
 					"settings":
 					{
@@ -425,7 +422,7 @@
 			[
 				{
 					"buffer": 3,
-					"file": "/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/include/texture.h",
+					"file": "include/texture.h",
 					"semi_transient": false,
 					"settings":
 					{
@@ -455,7 +452,7 @@
 				},
 				{
 					"buffer": 4,
-					"file": "/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/gitignore",
+					"file": "gitignore",
 					"semi_transient": false,
 					"settings":
 					{
@@ -483,7 +480,7 @@
 				},
 				{
 					"buffer": 5,
-					"file": "/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/include/window.h",
+					"file": "include/window.h",
 					"semi_transient": false,
 					"settings":
 					{

@@ -8,20 +8,15 @@
 #include "texture.h"
 #include "action.h"
 
-/*
-SDL_Window* Pantalla = NULL;
-SDL_Renderer* RenderP = NULL;
-TTF_Font* Font = NULL;
-SDL_Color Negro = {0,0,0};
-SDL_Color Blanco = {0xFF,0xFF,0xFF};
-int AnchoP = 640,LargoP = 480,Cor_x = AnchoP/2,Cor_y = LargoP/2,Vel = 4,Vel_x = 5,Vel_y = Vel/2,MCor_x = 50,MCor_y,Puntaje[2] = {0,0};
+
+
+int AnchoP = 640,LargoP = 480,Cor_x = AnchoP/2,Cor_y = LargoP/2,Vel = 4,Vel_x = 5,Vel_y = Vel/2,MCor_x = 50,MCor_y;
+
 int ContVel = 0,TCor_x = AnchoP-70,TCor_y = LargoP/2,IA_Level = 3,Temp_IMG;
 
-SDL_Rect rect[3];
-Textura Puntaje1;
-Textura Puntaje2;
 
 
+/*
 void SDL_Cuadrado(int x,int y,int h,int w){
 
     SDL_Rect Cuadrado;
@@ -243,9 +238,6 @@ void Impresor_P(){
     }
     SDL_SetRenderDrawColor(RenderP,0xFF,0xFF,0xFF,0xFF);
     SDL_RenderFillRect(RenderP,&rect[0]);
-    Puntaje1.Render(AnchoP/2-Puntaje1.GetAncho()-Temp_IMG,40);
-    Puntaje2.Render(AnchoP/2+Temp_IMG,40);
-    SDL_RenderDrawLine(RenderP,AnchoP/2,0,AnchoP/2,LargoP);
 }
 */
 
@@ -253,6 +245,14 @@ int main( int argc, char* args[] ){
     int SCREEN_WIDTH  = 640;
     int SCREEN_HEIGHT = 480;
     int TEXT_SIZE     =  40;
+
+    int SCORE[2] = {0,0};
+    
+    enum entity{
+        BALL,
+        PLAYER1,
+        PLAYER2
+    };
 
     bool exit = false;
 
@@ -264,6 +264,23 @@ int main( int argc, char* args[] ){
     SDL_Color COLOR_GREEN = {0x00, 0xFF, 0x00, 0xFF};
     SDL_Color COLOR_BLUE  = {0x00, 0x00, 0xFF, 0xFF};
     SDL_Color COLOR_WHITE = {0xFF, 0xFF, 0xFF, 0xFF};
+
+    SDL_Rect rect[3];
+
+    rect[BALL].x = Cor_x;
+    rect[BALL].y = Cor_y;
+    rect[BALL].h = 10;
+    rect[BALL].w = 10;
+
+    rect[PLAYER1].x = MCor_x;
+    rect[PLAYER1].y = MCor_y;
+    rect[PLAYER1].h = 100;
+    rect[PLAYER1].w = 20;
+
+    rect[PLAYER2].x = TCor_x;
+    rect[PLAYER2].y = TCor_y;
+    rect[PLAYER2].h = 100;
+    rect[PLAYER2].w = 20;
 
     Window window(
         "Window",
@@ -299,9 +316,43 @@ int main( int argc, char* args[] ){
         }else{
             window.clear_screen();
 
+
+
+
+
             //Impresor_P();
 
+            // Print Characters
             window.set_render_draw_color(COLOR_WHITE);
+
+            for(int i=0;i<3;i++){
+                SDL_RenderFillRect(window.get_render(), &rect[i]);
+            }
+
+
+            // Print UI
+            int width = 0;
+            width = text_white.get_text_size(
+                std::to_string(SCORE[0])
+            ).w;
+
+            text_white.render(
+                SCREEN_WIDTH/2 - width, 0,
+                std::to_string(SCORE[0])
+            );
+
+            width = text_white.get_text_size(
+                std::to_string(SCORE[1])
+            ).w;
+
+            text_white.render(
+                SCREEN_WIDTH/2, 0,
+                std::to_string(SCORE[1])
+            );
+            
+
+
+
             SDL_RenderDrawLine(
                 window.get_render(),
                 SCREEN_WIDTH/2, 0,

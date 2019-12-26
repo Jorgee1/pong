@@ -5,7 +5,7 @@
 #include <string>
 
 #include "window.h"
-#include "textura.h"
+#include "texture.h"
 #include "action.h"
 
 /*
@@ -256,7 +256,7 @@ int main( int argc, char* args[] ){
 
     bool exit = false;
 
-    std::string PATH_FONT = "asset/fonst/LiberationMono-Regular.ttf";
+    std::string PATH_FONT = "asset/font/LiberationMono-Regular.ttf";
     std::string PATH_ICON = "asset/icon.bmp";
 
     SDL_Color COLOR_BLACK = {0x00, 0x00, 0x00, 0xFF};
@@ -301,6 +301,7 @@ int main( int argc, char* args[] ){
 
             //Impresor_P();
 
+            window.set_render_draw_color(COLOR_WHITE);
             SDL_RenderDrawLine(
                 window.get_render(),
                 SCREEN_WIDTH/2, 0,

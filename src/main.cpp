@@ -155,10 +155,15 @@ int main( int argc, char* args[] ){
     int SCREEN_HEIGHT = 480;
     int TEXT_SIZE     =  40;
     
-    int IA_Level = 3;
-    int VEL      = 4;
+    int IA_Level  = 3;
+    int VEL       = 4;
+    
+    int BALL_SIZE = 10;
 
-    int score[2]   = {0,0};
+    int PLAYER_WIDHT  =  20;
+    int PLAYER_HEIGHT = 100;
+
+    int score[2] = {0,0};
 
     enum entity{
         BALL,
@@ -181,23 +186,22 @@ int main( int argc, char* args[] ){
     SDL_Color COLOR_BLUE  = {0x00, 0x00, 0xFF, 0xFF};
     SDL_Color COLOR_WHITE = {0xFF, 0xFF, 0xFF, 0xFF};
 
-
     rect[BALL].x =  SCREEN_WIDTH/2;
     rect[BALL].y = SCREEN_HEIGHT/2;
-    rect[BALL].h =  10;
-    rect[BALL].w =  10;
-    ball_vel.x =   VEL;
-    ball_vel.y = VEL/2;
+    rect[BALL].h = BALL_SIZE;
+    rect[BALL].w = BALL_SIZE;
+    ball_vel.x   =   VEL;
+    ball_vel.y   = VEL/2;
 
-    rect[PLAYER1].x =  50;
-    rect[PLAYER1].y =   0;
-    rect[PLAYER1].h = 100;
-    rect[PLAYER1].w =  20;
+    rect[PLAYER1].x = 0;
+    rect[PLAYER1].y = 0;
+    rect[PLAYER1].h = PLAYER_HEIGHT;
+    rect[PLAYER1].w =  PLAYER_WIDHT;
 
-    rect[PLAYER2].x = SCREEN_WIDTH-70;
-    rect[PLAYER2].y =   0;
-    rect[PLAYER2].h = 100;
-    rect[PLAYER2].w =  20;
+    rect[PLAYER2].x = SCREEN_WIDTH - PLAYER_WIDHT;
+    rect[PLAYER2].y = 0;
+    rect[PLAYER2].h = PLAYER_HEIGHT;
+    rect[PLAYER2].w =  PLAYER_WIDHT;
 
     Window window(
         "Window",
@@ -233,7 +237,6 @@ int main( int argc, char* args[] ){
         }else{
             window.clear_screen();
 
-
             //Movement Player
             if(action->get_state(action->BUTTON_MOVE_UP)){
                 rect[PLAYER1].y-=5;
@@ -248,36 +251,34 @@ int main( int argc, char* args[] ){
             }
 
             // Movement computer
-            rect[PLAYER2].y = rect[0].y-(rect[PLAYER2].h/2);
-            
-            if((rect[PLAYER2].y+(rect[PLAYER2].h/2))<rect[0].y){
+            rect[PLAYER2].y = rect[BALL].y-(rect[PLAYER2].h/2);
+
+            if((rect[PLAYER2].y+(rect[PLAYER2].h/2))<rect[BALL].y){
                 rect[PLAYER2].y = rect[PLAYER2].y + IA_Level;
             }
-            if((rect[PLAYER2].y+(rect[PLAYER2].h/2))>rect[0].y){
+            if((rect[PLAYER2].y+(rect[PLAYER2].h/2))>rect[BALL].y){
                 rect[PLAYER2].y = rect[PLAYER2].y - IA_Level;
             }
-            if(rect[PLAYER2].y+((rect[PLAYER2].h+rect[0].h+4))>SCREEN_HEIGHT){
-                rect[PLAYER2].y = SCREEN_HEIGHT-(rect[PLAYER2].h)-rect[0].h-4;
+            if(rect[PLAYER2].y+((rect[PLAYER2].h+rect[BALL].h+4))>SCREEN_HEIGHT){
+                rect[PLAYER2].y = SCREEN_HEIGHT-(rect[PLAYER2].h)-rect[BALL].h-4;
             }
-            if(rect[PLAYER2].y<rect[0].h+4){
-                rect[PLAYER2].y = rect[0].h+4;
+            if(rect[PLAYER2].y<rect[BALL].h+4){
+                rect[PLAYER2].y = rect[BALL].h+4;
             }
 
             // Movement ball
             rect[BALL].x += ball_vel.x;
             rect[BALL].y += ball_vel.y;
             
-
-
             if(rect[BALL].x + rect[BALL].w > SCREEN_WIDTH){
-                score[0]++;
+                score[PLAYER1 - 1]++;
                 rect[BALL].x = SCREEN_WIDTH/2;
                 rect[BALL].y = SCREEN_HEIGHT/2;
 
                 ball_vel.y = VEL/2;
             }
             if(rect[BALL].x < 0){
-                score[1]++;
+                score[PLAYER2 - 1]++;
                 rect[BALL].x = SCREEN_WIDTH/2;
                 rect[BALL].y = SCREEN_HEIGHT/2;
 
@@ -296,8 +297,15 @@ int main( int argc, char* args[] ){
             }
 
             // bounce on each elements
-            if(Colision(rect[BALL], rect[PLAYER1], rect[PLAYER2], ball_vel, &collition) == true){
-
+            if(
+                Colision(
+                    rect[BALL],
+                    rect[PLAYER1],
+                    rect[PLAYER2],
+                    ball_vel,
+                    &collition
+                ) == true
+            ){
                 if(collition.x == 1){
                     ball_vel.x = -1*ball_vel.x;
                     collition.x = 0;
@@ -346,11 +354,3 @@ int main( int argc, char* args[] ){
     }
     return 0;
 }
-
-
-
-
-
-
-
-

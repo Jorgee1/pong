@@ -122,30 +122,14 @@ bool Verificar_collision_IA(
             }
             return true;
         }
-        if( (A_DER>=B_IZQ) && (A_VEL.x>0) ){
+        if(
+            (A_DER >= B_IZQ) &&
+            (A_VEL.x > 0)
+        ){
             collition->x = 1;
             return true;
         }
 
-    }
-    return false;
-}
-
-bool Colision(
-        SDL_Rect ball,
-        SDL_Rect player1,
-        SDL_Rect player2,
-        SDL_Point vel,
-        SDL_Point* collition
-    ){
-    Verificar_collision(ball, player1, vel, collition);
-    Verificar_collision_IA(ball, player2, vel, collition);
-
-    if(collition->x == 1){
-        return true;
-    }
-    if(collition->y == 1){
-        return true;
     }
     return false;
 }
@@ -204,7 +188,7 @@ int main( int argc, char* args[] ){
     rect[PLAYER2].w =  PLAYER_WIDHT;
 
     Window window(
-        "Window",
+        "PONG",
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
         COLOR_BLACK
@@ -297,15 +281,10 @@ int main( int argc, char* args[] ){
             }
 
             // bounce on each elements
-            if(
-                Colision(
-                    rect[BALL],
-                    rect[PLAYER1],
-                    rect[PLAYER2],
-                    ball_vel,
-                    &collition
-                ) == true
-            ){
+            Verificar_collision(rect[BALL], rect[PLAYER1], ball_vel, &collition);
+            Verificar_collision_IA(rect[BALL], rect[PLAYER2], ball_vel, &collition);
+
+            if( (collition.x == 1) || (collition.y == 1)){
                 if(collition.x == 1){
                     ball_vel.x = -1*ball_vel.x;
                     collition.x = 0;

@@ -103,24 +103,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "Makefile",
-			"settings":
-			{
-				"buffer_size": 951,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "src/main.cpp",
-			"settings":
-			{
-				"buffer_size": 8693,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		}
 	],
 	"build_system": "Packages/Makefile/Make.sublime-build",
 	"build_system_choices":
@@ -199,6 +181,8 @@
 	"file_history":
 	[
 		"/media/kenshinn/Extra/Programacion/Proyectos/C++/2D-Top-Down/src/overworld.cpp",
+		"/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/src/main.cpp",
+		"/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/Makefile",
 		"/media/kenshinn/Extra/Programacion/Proyectos/C++/2D-Top-Down/include/overworld.h",
 		"/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/include/action.h",
 		"/media/kenshinn/Extra/Programacion/Proyectos/C++/Pong/include/texture.h",
@@ -245,7 +229,7 @@
 	],
 	"find":
 	{
-		"height": 39.0
+		"height": 26.0
 	},
 	"find_in_files":
 	{
@@ -317,67 +301,8 @@
 	"groups":
 	[
 		{
-			"selected": 1,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "Makefile",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 951,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								688,
-								688
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Makefile/Makefile.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "src/main.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 8693,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								7391,
-								7379
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1082.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
 			]
 		}
 	],

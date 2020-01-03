@@ -37,5 +37,6 @@
 *.app
 
 build/
-
+*.sublime-project
+*.sublime-workspace
 # End of https://www.gitignore.io/api/c++

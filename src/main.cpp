@@ -3,6 +3,8 @@
 #include <SDL_image.h>
 
 #include <string>
+#include <stdlib.h> 
+#include <time.h>
 
 #include "window.h"
 #include "texture.h"
@@ -201,7 +203,6 @@ class Entity{
         void update(){
             x += speed.x;
             y += speed.y;
-            stop();
         }
         
         SDL_Rect get_rect(){
@@ -222,13 +223,12 @@ class Entity{
 };
 
 int main( int argc, char* args[] ){
+    srand (time(NULL));
     int SCREEN_WIDTH  = 640;
     int SCREEN_HEIGHT = 480;
     int TEXT_SIZE     =  40;
     
-    int IA_Level = 3;
-    int VEL      = 4;
-    
+    int VEL       =  5;
     int BALL_SIZE = 10;
 
     int PLAYER_WIDHT  =  20;
@@ -236,16 +236,18 @@ int main( int argc, char* args[] ){
 
     int score[2] = {0,0};
 
+    bool exit = false;
+
     enum entity{
         BALL,
         PLAYER1,
         PLAYER2
     };
 
-    bool exit = false;
+    std::string PATH(SDL_GetBasePath());
     std::string GAME_NAME = "PONG";
-    std::string PATH_FONT = "asset/font/LiberationMono-Regular.ttf";
-    std::string PATH_ICON = "asset/icon.bmp";
+    std::string PATH_FONT = PATH + "asset/font/LiberationMono-Regular.ttf";
+    std::string PATH_ICON = PATH + "asset/icon.bmp";
 
     SDL_Color COLOR_BLACK = {0x00, 0x00, 0x00, 0xFF};
     SDL_Color COLOR_RED   = {0xFF, 0x00, 0x00, 0xFF};
@@ -262,16 +264,20 @@ int main( int argc, char* args[] ){
         BALL_SIZE, BALL_SIZE, {VEL, VEL/2},
         COLOR_WHITE
     );
+
     
+    ball.move_up();
+    ball.move_right();
+
     player1.init(
         0, 0,
-        PLAYER_HEIGHT, PLAYER_WIDHT, {5, 5},
+        PLAYER_HEIGHT, PLAYER_WIDHT, {VEL, VEL},
         COLOR_WHITE
     );
     
     player2.init(
         SCREEN_WIDTH - PLAYER_WIDHT, 0,
-        PLAYER_HEIGHT, PLAYER_WIDHT, {5, 5},
+        PLAYER_HEIGHT, PLAYER_WIDHT, {VEL, VEL},
         COLOR_WHITE
     );
     
@@ -303,8 +309,6 @@ int main( int argc, char* args[] ){
         SDL_SCANCODE_RIGHT
     );
 
-    //cargador();
-
     while(exit == false){
         if(window.check_exit()){
             exit = true;
@@ -316,6 +320,8 @@ int main( int argc, char* args[] ){
                 player1.move_up();
             }else if(action->get_state(action->BUTTON_MOVE_DOWN)){
                 player1.move_down();
+            }else{
+                player1.stop();
             }
 
             if((player1.y <= 0) && (player1.speed.y < 0)){
@@ -330,10 +336,12 @@ int main( int argc, char* args[] ){
             }
 
             // Movement computer
-            if((player2.y + (player2.h/2)) < ball.y){
+            if(player2.y + (player2.h/2) + 20 < ball.y){
                 player2.move_down();
-            }else if((player2.y + (player2.h/2)) > ball.y){
+            }else if(player2.y + (player2.h/2) - 20 > ball.y){
                 player2.move_up();
+            }else{
+                player2.stop();
             }
             
             if(
@@ -347,23 +355,21 @@ int main( int argc, char* args[] ){
                 player2.y = 0;
             }
 
-            // Movement ball
-            ball.x += ball.speed_limit.x;
-            ball.y += ball.speed_limit.y;
+            // ball movement
             
             if(ball.x + ball.w > SCREEN_WIDTH){
                 score[PLAYER1 - 1]++;
                 ball.x = SCREEN_WIDTH/2;
                 ball.y = SCREEN_HEIGHT/2;
 
-                ball.speed_limit.y = VEL/2;
+                ball.move_up();
             }
             if(ball.x < 0){
                 score[PLAYER2 - 1]++;
                 ball.x = SCREEN_WIDTH/2;
                 ball.y = SCREEN_HEIGHT/2;
 
-                ball.speed_limit.y = VEL/2;
+                ball.move_right();
             }
 
             collition.x = 0;
@@ -381,38 +387,38 @@ int main( int argc, char* args[] ){
             Verificar_collision(
                 ball.get_rect(),
                 player1.get_rect(),
-                ball.speed_limit,
+                ball.speed,
                 &collition
             );
             Verificar_collision_IA(
                 ball.get_rect(),
                 player2.get_rect(),
-                ball.speed_limit,
+                ball.speed,
                 &collition
             );
 
             if( (collition.x == 1) || (collition.y == 1)){
                 if(collition.x == 1){
-                    ball.speed_limit.x = -1*ball.speed_limit.x;
+                    ball.speed.x = -1*ball.speed.x;
                     collition.x = 0;
                 }
                 if(collition.y == 1){
-                    ball.speed_limit.y = -1*ball.speed_limit.y;
+                    ball.speed.y = -1*ball.speed.y;
                     collition.y = 0;
                 }
             }
 
             // Update world
-            //ball.update();
+            ball.update();
             player1.update();
             player2.update();
             
-            // Print entitys
+            // Draw entitys
             window.draw_rectangle(ball.get_rect(), COLOR_WHITE);
             window.draw_rectangle(player1.get_rect(), COLOR_WHITE);
             window.draw_rectangle(player2.get_rect(), COLOR_WHITE);
 
-            // Print UI
+            // Draw UI
             int width = 0;
             width = text_white.get_text_size(
                 std::to_string(score[PLAYER1 - 1])

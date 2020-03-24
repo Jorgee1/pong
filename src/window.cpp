@@ -79,6 +79,27 @@ void Window::set_icon(std::string icon_path){
     }
 }
 
+void Window::set_viewport(SDL_Rect* viewport){
+    SDL_RenderSetViewport(render, viewport);
+}
+
+void Window::draw_line(
+        SDL_Point p1,
+        SDL_Point p2,
+        SDL_Color color
+    ){
+    set_render_draw_color(color);
+    SDL_RenderDrawLine(render, p1.x, p1.y, p2.x, p2.y);
+    set_render_draw_color(clear_color);
+}
+
+void Window::draw_rectangle(SDL_Rect rect, SDL_Color color){
+    set_render_draw_color(color);
+    SDL_RenderFillRect(render, &rect);
+    set_render_draw_color(clear_color);
+}
+
+
 SDL_Renderer* Window::get_render(){
     return render;
 }

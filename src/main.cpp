@@ -134,6 +134,71 @@ bool Verificar_collision_IA(
     return false;
 }
 
+class Entity{
+    public:
+        int x;
+        int y;
+        int h;
+        int w;
+        SDL_Point speed;
+        
+        SDL_Color color;
+        
+        Entity(){
+            x = 0;
+            y = 0;
+            h = 0;
+            w = 0;
+            speed.x = 0;
+            speed.y = 0;
+            color = {0, 0, 0, 0xFF};
+        }
+        
+        void init(
+            int x, int y, int h, int w,
+            SDL_Point speed, SDL_Color color
+        ){
+            this->x = x;
+            this->y = y;
+            this->h = h;
+            this->w = w;
+            this->speed = speed;
+            this->color = color;
+        }
+        
+        void move_up(){
+            y -= speed.y;
+        }
+        
+        void move_down(){
+            y += speed.y;
+        }
+        
+        void move_left(){
+            x -= speed.x;
+        }
+        
+        void move_right(){
+            x += speed.x;
+        }
+        
+        SDL_Rect get_rect(){
+            SDL_Rect rect;
+            rect.x = x;
+            rect.y = y;
+            rect.h = h;
+            rect.w = w;
+            return rect;
+        }
+        
+        SDL_Point get_position(){
+            SDL_Point point;
+            point.x = x;
+            point.y = y;
+            return point;
+        }
+};
+
 int main( int argc, char* args[] ){
     int SCREEN_WIDTH  = 640;
     int SCREEN_HEIGHT = 480;
@@ -156,13 +221,9 @@ int main( int argc, char* args[] ){
     };
 
     bool exit = false;
-
+    std::string GAME_NAME = "PONG";
     std::string PATH_FONT = "asset/font/LiberationMono-Regular.ttf";
     std::string PATH_ICON = "asset/icon.bmp";
-
-    SDL_Rect    rect[3];
-    SDL_Point  ball_vel;
-    SDL_Point collition;
 
     SDL_Color COLOR_BLACK = {0x00, 0x00, 0x00, 0xFF};
     SDL_Color COLOR_RED   = {0xFF, 0x00, 0x00, 0xFF};
@@ -170,25 +231,32 @@ int main( int argc, char* args[] ){
     SDL_Color COLOR_BLUE  = {0x00, 0x00, 0xFF, 0xFF};
     SDL_Color COLOR_WHITE = {0xFF, 0xFF, 0xFF, 0xFF};
 
-    rect[BALL].x =  SCREEN_WIDTH/2;
-    rect[BALL].y = SCREEN_HEIGHT/2;
-    rect[BALL].h = BALL_SIZE;
-    rect[BALL].w = BALL_SIZE;
-    ball_vel.x   =   VEL;
-    ball_vel.y   = VEL/2;
-
-    rect[PLAYER1].x = 0;
-    rect[PLAYER1].y = 0;
-    rect[PLAYER1].h = PLAYER_HEIGHT;
-    rect[PLAYER1].w =  PLAYER_WIDHT;
-
-    rect[PLAYER2].x = SCREEN_WIDTH - PLAYER_WIDHT;
-    rect[PLAYER2].y = 0;
-    rect[PLAYER2].h = PLAYER_HEIGHT;
-    rect[PLAYER2].w =  PLAYER_WIDHT;
-
+    Entity ball;
+    Entity player1;
+    Entity player2;
+    
+    ball.init(
+        SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
+        BALL_SIZE, BALL_SIZE, {VEL, VEL/2},
+        COLOR_WHITE
+    );
+    
+    player1.init(
+        0, 0,
+        PLAYER_HEIGHT, PLAYER_WIDHT, {5, 5},
+        COLOR_WHITE
+    );
+    
+    player2.init(
+        SCREEN_WIDTH - PLAYER_WIDHT, 0,
+        PLAYER_HEIGHT, PLAYER_WIDHT, {5, 5},
+        COLOR_WHITE
+    );
+    
+    SDL_Point collition;
+    
     Window window(
-        "PONG",
+        GAME_NAME.c_str(),
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
         COLOR_BLACK
@@ -223,85 +291,92 @@ int main( int argc, char* args[] ){
 
             //Movement Player
             if(action->get_state(action->BUTTON_MOVE_UP)){
-                rect[PLAYER1].y-=5;
+                player1.move_up();
             }else if(action->get_state(action->BUTTON_MOVE_DOWN)){
-                rect[PLAYER1].y+=5;
+                player1.move_down();
             }
 
-            if(rect[PLAYER1].y<0){
-                rect[PLAYER1].y = 0;
-            }else if(rect[PLAYER1].y + rect[PLAYER1].h>SCREEN_HEIGHT){
-                rect[PLAYER1].y = SCREEN_HEIGHT - rect[PLAYER1].h;
+            if(player1.y < 0){
+                player1.y = 0;
+            }else if(player1.y + player1.h > SCREEN_HEIGHT){
+                player1.y = SCREEN_HEIGHT - player1.h;
             }
 
             // Movement computer
-            rect[PLAYER2].y = rect[BALL].y-(rect[PLAYER2].h/2);
+            player2.y = ball.y - (player2.h/2);
 
-            if((rect[PLAYER2].y+(rect[PLAYER2].h/2))<rect[BALL].y){
-                rect[PLAYER2].y = rect[PLAYER2].y + IA_Level;
+            if((player2.y + (player2.h/2)) < ball.y){
+                player2.y += IA_Level;
             }
-            if((rect[PLAYER2].y+(rect[PLAYER2].h/2))>rect[BALL].y){
-                rect[PLAYER2].y = rect[PLAYER2].y - IA_Level;
+            if((player2.y + (player2.h/2)) > ball.y){
+                player2.y -= IA_Level;
             }
-            if(rect[PLAYER2].y+((rect[PLAYER2].h+rect[BALL].h+4))>SCREEN_HEIGHT){
-                rect[PLAYER2].y = SCREEN_HEIGHT-(rect[PLAYER2].h)-rect[BALL].h-4;
+            if(player2.y + (player2.h + ball.h + 4) > SCREEN_HEIGHT){
+                player2.y = SCREEN_HEIGHT - player2.h - ball.h - 4;
             }
-            if(rect[PLAYER2].y<rect[BALL].h+4){
-                rect[PLAYER2].y = rect[BALL].h+4;
+            if(player2.y < ball.h + 4){
+                player2.y = ball.h + 4;
             }
 
             // Movement ball
-            rect[BALL].x += ball_vel.x;
-            rect[BALL].y += ball_vel.y;
+            ball.x += ball.speed.x;
+            ball.y += ball.speed.y;
             
-            if(rect[BALL].x + rect[BALL].w > SCREEN_WIDTH){
+            if(ball.x + ball.w > SCREEN_WIDTH){
                 score[PLAYER1 - 1]++;
-                rect[BALL].x = SCREEN_WIDTH/2;
-                rect[BALL].y = SCREEN_HEIGHT/2;
+                ball.x = SCREEN_WIDTH/2;
+                ball.y = SCREEN_HEIGHT/2;
 
-                ball_vel.y = VEL/2;
+                ball.speed.y = VEL/2;
             }
-            if(rect[BALL].x < 0){
+            if(ball.x < 0){
                 score[PLAYER2 - 1]++;
-                rect[BALL].x = SCREEN_WIDTH/2;
-                rect[BALL].y = SCREEN_HEIGHT/2;
+                ball.x = SCREEN_WIDTH/2;
+                ball.y = SCREEN_HEIGHT/2;
 
-                ball_vel.y = VEL/2;
+                ball.speed.y = VEL/2;
             }
 
             collition.x = 0;
             collition.y = 0;
 
             // Bounce on screen
-            if(rect[BALL].y + rect[BALL].h > SCREEN_HEIGHT){
+            if(ball.y + ball.h > SCREEN_HEIGHT){
                 collition.y = 1;
             }
-            if(rect[BALL].y<0){
+            if(ball.y < 0){
                 collition.y = 1;
             }
 
             // bounce on each elements
-            Verificar_collision(rect[BALL], rect[PLAYER1], ball_vel, &collition);
-            Verificar_collision_IA(rect[BALL], rect[PLAYER2], ball_vel, &collition);
+            Verificar_collision(
+                ball.get_rect(),
+                player1.get_rect(),
+                ball.speed,
+                &collition
+            );
+            Verificar_collision_IA(
+                ball.get_rect(),
+                player2.get_rect(),
+                ball.speed,
+                &collition
+            );
 
             if( (collition.x == 1) || (collition.y == 1)){
                 if(collition.x == 1){
-                    ball_vel.x = -1*ball_vel.x;
+                    ball.speed.x = -1*ball.speed.x;
                     collition.x = 0;
                 }
                 if(collition.y == 1){
-                    ball_vel.y = -1*ball_vel.y;
+                    ball.speed.y = -1*ball.speed.y;
                     collition.y = 0;
                 }
             }
 
             // Print entitys
-            window.set_render_draw_color(COLOR_WHITE);
-
-            for(int i=0;i<3;i++){
-                SDL_RenderFillRect(window.get_render(), &rect[i]);
-            }
-
+            window.draw_rectangle(ball.get_rect(), COLOR_WHITE);
+            window.draw_rectangle(player1.get_rect(), COLOR_WHITE);
+            window.draw_rectangle(player2.get_rect(), COLOR_WHITE);
 
             // Print UI
             int width = 0;
@@ -310,7 +385,7 @@ int main( int argc, char* args[] ){
             ).w;
 
             text_white.render(
-                SCREEN_WIDTH/2 - width, 0,
+                SCREEN_WIDTH/2 - width -  10, 0,
                 std::to_string(score[PLAYER1 - 1])
             );
 
@@ -319,15 +394,16 @@ int main( int argc, char* args[] ){
             ).w;
 
             text_white.render(
-                SCREEN_WIDTH/2, 0,
+                SCREEN_WIDTH/2 + 10, 0,
                 std::to_string(score[PLAYER2 - 1])
             );
             
-            SDL_RenderDrawLine(
-                window.get_render(),
-                SCREEN_WIDTH/2, 0,
-                SCREEN_WIDTH/2, SCREEN_HEIGHT
+            window.draw_line(
+                {SCREEN_WIDTH/2, 0},
+                {SCREEN_WIDTH/2, SCREEN_HEIGHT},
+                COLOR_WHITE
             );
+
             window.update_screen();
         }
     }

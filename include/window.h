@@ -24,6 +24,11 @@ class Window{
         void set_render_draw_color(SDL_Color);
         void set_icon(std::string icon_path);
         
+        void set_viewport(SDL_Rect*);
+
+        void draw_line(SDL_Point, SDL_Point, SDL_Color);
+        void draw_rectangle(SDL_Rect, SDL_Color);
+
         SDL_Renderer* get_render();
         SDL_Window* get_window();
 

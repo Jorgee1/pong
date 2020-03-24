@@ -3,8 +3,8 @@
 #include <SDL_image.h>
 
 #include <string>
-#include <stdlib.h> 
-#include <time.h>
+#include <stdlib.h>
+#include <ctime>
 
 #include "window.h"
 #include "texture.h"
@@ -27,10 +27,6 @@ bool Verificar_collision(
     int B_ARR = B.y;
     int B_ABJ = B.y + B.h;
     /// Restriccones
-    if(A_VEL.x>0){
-        return false;
-    }
-
     if(
         (A_ABJ >= B_ARR) &&
         (A_ARR <= B_ABJ) &&
@@ -66,62 +62,6 @@ bool Verificar_collision(
             (A_VEL.x < 0) 
         ){
             collition->x = 1;
-            return true;
-        }
-
-    }
-    return false;
-}
-
-bool Verificar_collision_IA(
-        SDL_Rect A,
-        SDL_Rect B,
-        SDL_Point A_VEL,
-        SDL_Point* collition
-    ){
-    /// PARA A
-    int A_IZQ = A.x;
-    int A_DER = A.x + A.w;
-    int A_ARR = A.y;
-    int A_ABJ = A.y + A.h;
-    /// PARA B
-    int B_IZQ = B.x;
-    int B_DER = B.x + B.w;
-    int B_ARR = B.y;
-    int B_ABJ = B.y + B.h;
-    /// Restriccones
-    if(A_VEL.x<0){
-        return false;
-    }
-
-    if(
-        (A_ABJ >= B_ARR) &&
-        (A_ARR <= B_ABJ) &&
-        (A_DER >= B_IZQ) &&
-        (A_IZQ <= B_DER)
-    ){
-        if(
-            (A_ABJ >= B_ARR) &&
-            (A_ABJ <= B_ARR+(B.h/5))
-        ){
-            if(A_VEL.y > 0){
-                collition->y = 1;
-                collition->x = 1;
-            }else{
-                collition->x = 1;
-            }
-            return true;
-        }
-        if(
-            (A_ARR <= B_ABJ) &&
-            (A_ARR >= B_ABJ-(B.h/5)) 
-        ){
-            if(A_VEL.y<0){
-                collition->y = 1;
-                collition->x = 1;
-            }else{
-                collition->x = 1;
-            }
             return true;
         }
         if(
@@ -223,7 +163,7 @@ class Entity{
 };
 
 int main( int argc, char* args[] ){
-    srand (time(NULL));
+    srand (time(0));
     int SCREEN_WIDTH  = 640;
     int SCREEN_HEIGHT = 480;
     int TEXT_SIZE     =  40;
@@ -235,7 +175,7 @@ int main( int argc, char* args[] ){
     int PLAYER_HEIGHT = 100;
 
     int score[2] = {0,0};
-
+    int rand_value = 0;
     bool exit = false;
 
     enum entity{
@@ -265,9 +205,21 @@ int main( int argc, char* args[] ){
         COLOR_WHITE
     );
 
-    
-    ball.move_up();
-    ball.move_right();
+    rand_value = rand() % 4;
+    printf("%i\n", rand_value);
+    if (rand_value == 0){
+        ball.move_up();
+        ball.move_right();
+    }else if (rand_value == 1){
+        ball.move_down();
+        ball.move_right();
+    }else if (rand_value == 2){
+        ball.move_up();
+        ball.move_left();
+    }else if (rand_value == 3){
+        ball.move_down();
+        ball.move_left();
+    }
 
     player1.init(
         0, 0,
@@ -362,14 +314,42 @@ int main( int argc, char* args[] ){
                 ball.x = SCREEN_WIDTH/2;
                 ball.y = SCREEN_HEIGHT/2;
 
-                ball.move_up();
+                rand_value = rand() % 4;
+                printf("%i", rand_value);
+                if (rand_value == 0){
+                    ball.move_up();
+                    ball.move_right();
+                }else if (rand_value == 1){
+                    ball.move_down();
+                    ball.move_right();
+                }else if (rand_value == 2){
+                    ball.move_up();
+                    ball.move_left();
+                }else if (rand_value == 3){
+                    ball.move_down();
+                    ball.move_left();
+                }
             }
             if(ball.x < 0){
                 score[PLAYER2 - 1]++;
                 ball.x = SCREEN_WIDTH/2;
                 ball.y = SCREEN_HEIGHT/2;
 
-                ball.move_right();
+                rand_value = rand() % 4;
+                printf("%i", rand_value);
+                if (rand_value == 0){
+                    ball.move_up();
+                    ball.move_right();
+                }else if (rand_value == 1){
+                    ball.move_down();
+                    ball.move_right();
+                }else if (rand_value == 2){
+                    ball.move_up();
+                    ball.move_left();
+                }else if (rand_value == 3){
+                    ball.move_down();
+                    ball.move_left();
+                }
             }
 
             collition.x = 0;
@@ -384,18 +364,24 @@ int main( int argc, char* args[] ){
             }
 
             // bounce on each elements
-            Verificar_collision(
-                ball.get_rect(),
-                player1.get_rect(),
-                ball.speed,
-                &collition
-            );
-            Verificar_collision_IA(
-                ball.get_rect(),
-                player2.get_rect(),
-                ball.speed,
-                &collition
-            );
+
+            if(ball.speed.x < 0){
+                Verificar_collision(
+                    ball.get_rect(),
+                    player1.get_rect(),
+                    ball.speed,
+                    &collition
+                );
+            }
+
+            if(ball.speed.x > 0){
+                Verificar_collision(
+                    ball.get_rect(),
+                    player2.get_rect(),
+                    ball.speed,
+                    &collition
+                );
+            }
 
             if( (collition.x == 1) || (collition.y == 1)){
                 if(collition.x == 1){

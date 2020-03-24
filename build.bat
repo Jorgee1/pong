@@ -16,21 +16,11 @@ set FLAGS=/EHsc
 
 mkdir %BUILD_FOLDER%
 
-cl %FLAGS% %CPP_FILES% /Fe%BUILD_FOLDER%\%GAME_NAME% %INCLUDES% %LIBS% /link %LIB_PATH% /SUBSYSTEM:WINDOWS
-
-
-
-
 xcopy /s libraries\*.dll %BUILD_FOLDER%\ /Y
 
 mkdir %BUILD_FOLDER%\asset
 xcopy /s asset %BUILD_FOLDER%\asset /Y
 
-
-
-cd %BUILD_FOLDER%
-%game_name%
-cd ..
-cd ..
+cl %FLAGS% %CPP_FILES% /Fe%BUILD_FOLDER%\%GAME_NAME% %INCLUDES% %LIBS% /link %LIB_PATH% /SUBSYSTEM:CONSOLE
 
 del *.obj

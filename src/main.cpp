@@ -31,7 +31,7 @@ bool Verificar_collision(
         (A_ABJ >= B_ARR) &&
         (A_ARR <= B_ABJ) &&
         (A_DER >= B_IZQ) &&
-        (A_IZQ <= B_DER)
+        (A_IZQ <= B_DER) 
     ){
         if(
             (A_ABJ >= B_ARR) &&

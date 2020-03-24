@@ -140,8 +140,9 @@ class Entity{
         int y;
         int h;
         int w;
+
+        SDL_Point speed_limit;
         SDL_Point speed;
-        
         SDL_Color color;
         
         Entity(){
@@ -151,6 +152,8 @@ class Entity{
             w = 0;
             speed.x = 0;
             speed.y = 0;
+            speed_limit.x = 0;
+            speed_limit.y = 0;
             color = {0, 0, 0, 0xFF};
         }
         
@@ -162,24 +165,43 @@ class Entity{
             this->y = y;
             this->h = h;
             this->w = w;
-            this->speed = speed;
+            this->speed_limit = speed;
             this->color = color;
         }
         
         void move_up(){
-            y -= speed.y;
+            speed.y = -speed_limit.y;
         }
         
         void move_down(){
-            y += speed.y;
+            speed.y = +speed_limit.y;
         }
         
         void move_left(){
-            x -= speed.x;
+            speed.x = -speed_limit.x;
         }
         
         void move_right(){
+            speed.x = +speed_limit.x;
+        }
+        
+        void stop(){
+            speed.x = 0;
+            speed.y = 0;
+        }
+        
+        void stop_x(){
+            speed.x = 0;
+        }
+        
+        void stop_y(){
+            speed.y = 0;
+        }
+        
+        void update(){
             x += speed.x;
+            y += speed.y;
+            stop();
         }
         
         SDL_Rect get_rect(){
@@ -204,8 +226,8 @@ int main( int argc, char* args[] ){
     int SCREEN_HEIGHT = 480;
     int TEXT_SIZE     =  40;
     
-    int IA_Level  = 3;
-    int VEL       = 4;
+    int IA_Level = 3;
+    int VEL      = 4;
     
     int BALL_SIZE = 10;
 
@@ -296,45 +318,52 @@ int main( int argc, char* args[] ){
                 player1.move_down();
             }
 
-            if(player1.y < 0){
+            if((player1.y <= 0) && (player1.speed.y < 0)){
+                player1.stop_y();
                 player1.y = 0;
-            }else if(player1.y + player1.h > SCREEN_HEIGHT){
+            }else if(
+                (player1.y + player1.h >= SCREEN_HEIGHT) &&
+                (player1.speed.y > 0)   
+            ){
+                player1.stop_y();
                 player1.y = SCREEN_HEIGHT - player1.h;
             }
 
             // Movement computer
-            player2.y = ball.y - (player2.h/2);
-
             if((player2.y + (player2.h/2)) < ball.y){
-                player2.y += IA_Level;
+                player2.move_down();
+            }else if((player2.y + (player2.h/2)) > ball.y){
+                player2.move_up();
             }
-            if((player2.y + (player2.h/2)) > ball.y){
-                player2.y -= IA_Level;
-            }
-            if(player2.y + (player2.h + ball.h + 4) > SCREEN_HEIGHT){
-                player2.y = SCREEN_HEIGHT - player2.h - ball.h - 4;
-            }
-            if(player2.y < ball.h + 4){
-                player2.y = ball.h + 4;
+            
+            if(
+                (player2.y + player2.h >= SCREEN_HEIGHT) &&
+                (player2.speed.y > 0)
+            ){
+                player2.stop_y();
+                player2.y = SCREEN_HEIGHT - player2.h;
+            }else if((player2.y <= 0) && (player2.speed.y < 0)){
+                player2.stop_y();
+                player2.y = 0;
             }
 
             // Movement ball
-            ball.x += ball.speed.x;
-            ball.y += ball.speed.y;
+            ball.x += ball.speed_limit.x;
+            ball.y += ball.speed_limit.y;
             
             if(ball.x + ball.w > SCREEN_WIDTH){
                 score[PLAYER1 - 1]++;
                 ball.x = SCREEN_WIDTH/2;
                 ball.y = SCREEN_HEIGHT/2;
 
-                ball.speed.y = VEL/2;
+                ball.speed_limit.y = VEL/2;
             }
             if(ball.x < 0){
                 score[PLAYER2 - 1]++;
                 ball.x = SCREEN_WIDTH/2;
                 ball.y = SCREEN_HEIGHT/2;
 
-                ball.speed.y = VEL/2;
+                ball.speed_limit.y = VEL/2;
             }
 
             collition.x = 0;
@@ -352,27 +381,32 @@ int main( int argc, char* args[] ){
             Verificar_collision(
                 ball.get_rect(),
                 player1.get_rect(),
-                ball.speed,
+                ball.speed_limit,
                 &collition
             );
             Verificar_collision_IA(
                 ball.get_rect(),
                 player2.get_rect(),
-                ball.speed,
+                ball.speed_limit,
                 &collition
             );
 
             if( (collition.x == 1) || (collition.y == 1)){
                 if(collition.x == 1){
-                    ball.speed.x = -1*ball.speed.x;
+                    ball.speed_limit.x = -1*ball.speed_limit.x;
                     collition.x = 0;
                 }
                 if(collition.y == 1){
-                    ball.speed.y = -1*ball.speed.y;
+                    ball.speed_limit.y = -1*ball.speed_limit.y;
                     collition.y = 0;
                 }
             }
 
+            // Update world
+            //ball.update();
+            player1.update();
+            player2.update();
+            
             // Print entitys
             window.draw_rectangle(ball.get_rect(), COLOR_WHITE);
             window.draw_rectangle(player1.get_rect(), COLOR_WHITE);

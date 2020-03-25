@@ -10,11 +10,9 @@
 #include "texture.h"
 #include "action.h"
 
-bool Verificar_collision(
+bool check_collition(
         SDL_Rect A,
-        SDL_Rect B,
-        SDL_Point A_VEL,
-        SDL_Point* collition
+        SDL_Rect B
     ){
     /// PARA A
     int A_IZQ = A.x;
@@ -33,45 +31,7 @@ bool Verificar_collision(
         (A_DER >= B_IZQ) &&
         (A_IZQ <= B_DER) 
     ){
-        if(
-            (A_ABJ >= B_ARR) &&
-            (A_ABJ <= B_ARR+(B.h/5)) 
-        ){
-            if(A_VEL.y > 0){
-                collition->y = 1;
-                collition->x = 1;
-            }else{
-                collition->x = 1;
-            }
-            return true;
-        }
-        if(
-            (A_ARR <= B_ABJ) &&
-            (A_ARR >= B_ABJ-(B.h/5)) 
-        ){
-            if(A_VEL.y < 0){
-                collition->y = 1;
-                collition->x = 1;
-            }else{
-                collition->x = 1;
-            }
-            return true;
-        }
-        if(
-            (A_IZQ <= B_DER) &&
-            (A_VEL.x < 0) 
-        ){
-            collition->x = 1;
-            return true;
-        }
-        if(
-            (A_DER >= B_IZQ) &&
-            (A_VEL.x > 0)
-        ){
-            collition->x = 1;
-            return true;
-        }
-
+        return true;
     }
     return false;
 }
@@ -176,7 +136,17 @@ int main( int argc, char* args[] ){
 
     int score[2] = {0,0};
     int rand_value = 0;
-    bool exit = false;
+
+    bool exit  = false;
+    bool pause = false;
+
+    int view_index = 0;
+    int width = 0;
+
+    enum views{
+        VIEW_START,
+        VIEW_GAME
+    };
 
     enum entity{
         BALL,
@@ -184,8 +154,9 @@ int main( int argc, char* args[] ){
         PLAYER2
     };
 
-    std::string PATH(SDL_GetBasePath());
     std::string GAME_NAME = "PONG";
+    std::string PATH(SDL_GetBasePath());
+
     std::string PATH_FONT = PATH + "asset/font/LiberationMono-Regular.ttf";
     std::string PATH_ICON = PATH + "asset/icon.bmp";
 
@@ -266,169 +237,191 @@ int main( int argc, char* args[] ){
             exit = true;
         }else{
             window.clear_screen();
+            if(view_index == VIEW_START){
+                width = text_white.get_text_size(
+                    GAME_NAME
+                ).w;
 
-            //Movement Player
-            if(action->get_state(action->BUTTON_MOVE_UP)){
-                player1.move_up();
-            }else if(action->get_state(action->BUTTON_MOVE_DOWN)){
-                player1.move_down();
-            }else{
-                player1.stop();
-            }
+                text_white.render(
+                    0, 0,
+                    GAME_NAME
+                );
 
-            if((player1.y <= 0) && (player1.speed.y < 0)){
-                player1.stop_y();
-                player1.y = 0;
-            }else if(
-                (player1.y + player1.h >= SCREEN_HEIGHT) &&
-                (player1.speed.y > 0)   
-            ){
-                player1.stop_y();
-                player1.y = SCREEN_HEIGHT - player1.h;
-            }
+                text_white.render(
+                    0, TEXT_SIZE,
+                    "PRESS START"
+                );
 
-            // Movement computer
-            if(player2.y + (player2.h/2) + 20 < ball.y){
-                player2.move_down();
-            }else if(player2.y + (player2.h/2) - 20 > ball.y){
-                player2.move_up();
-            }else{
-                player2.stop();
-            }
-            
-            if(
-                (player2.y + player2.h >= SCREEN_HEIGHT) &&
-                (player2.speed.y > 0)
-            ){
-                player2.stop_y();
-                player2.y = SCREEN_HEIGHT - player2.h;
-            }else if((player2.y <= 0) && (player2.speed.y < 0)){
-                player2.stop_y();
-                player2.y = 0;
-            }
-
-            // ball movement
-            
-            if(ball.x + ball.w > SCREEN_WIDTH){
-                score[PLAYER1 - 1]++;
-                ball.x = SCREEN_WIDTH/2;
-                ball.y = SCREEN_HEIGHT/2;
-
-                rand_value = rand() % 4;
-                printf("%i", rand_value);
-                if (rand_value == 0){
-                    ball.move_up();
-                    ball.move_right();
-                }else if (rand_value == 1){
-                    ball.move_down();
-                    ball.move_right();
-                }else if (rand_value == 2){
-                    ball.move_up();
-                    ball.move_left();
-                }else if (rand_value == 3){
-                    ball.move_down();
-                    ball.move_left();
+                if(action->check_action(action->BUTTON_START)){
+                    view_index = VIEW_GAME;
                 }
-            }
-            if(ball.x < 0){
-                score[PLAYER2 - 1]++;
-                ball.x = SCREEN_WIDTH/2;
-                ball.y = SCREEN_HEIGHT/2;
+            }else{
+                if(!pause){
+                    //PLAYER
+                    if(action->get_state(action->BUTTON_MOVE_UP)){
+                        player1.move_up();
+                    }else if(action->get_state(action->BUTTON_MOVE_DOWN)){
+                        player1.move_down();
+                    }else{
+                        player1.stop();
+                    }
 
-                rand_value = rand() % 4;
-                printf("%i", rand_value);
-                if (rand_value == 0){
-                    ball.move_up();
-                    ball.move_right();
-                }else if (rand_value == 1){
-                    ball.move_down();
-                    ball.move_right();
-                }else if (rand_value == 2){
-                    ball.move_up();
-                    ball.move_left();
-                }else if (rand_value == 3){
-                    ball.move_down();
-                    ball.move_left();
+                    if(action->check_action(action->BUTTON_START)){
+                        pause = true;
+                    }
+
+                    if((player1.y <= 0) && (player1.speed.y < 0)){
+                        player1.stop_y();
+                        player1.y = 0;
+                    }else if(
+                        (player1.y + player1.h >= SCREEN_HEIGHT) &&
+                        (player1.speed.y > 0)   
+                    ){
+                        player1.stop_y();
+                        player1.y = SCREEN_HEIGHT - player1.h;
+                    }
+
+                    // PC
+                    if(player2.y + (player2.h/2) + 20 < ball.y){
+                        player2.move_down();
+                    }else if(player2.y + (player2.h/2) - 20 > ball.y){
+                        player2.move_up();
+                    }else{
+                        player2.stop();
+                    }
+                    
+                    if(
+                        (player2.y + player2.h >= SCREEN_HEIGHT) &&
+                        (player2.speed.y > 0)
+                    ){
+                        player2.stop_y();
+                        player2.y = SCREEN_HEIGHT - player2.h;
+                    }else if((player2.y <= 0) && (player2.speed.y < 0)){
+                        player2.stop_y();
+                        player2.y = 0;
+                    }
+
+                    // ball movement
+                    
+                    if(ball.x + ball.w > SCREEN_WIDTH){
+                        score[PLAYER1 - 1]++;
+                        ball.x = SCREEN_WIDTH/2;
+                        ball.y = SCREEN_HEIGHT/2;
+
+                        rand_value = rand() % 4;
+                        printf("%i", rand_value);
+                        if (rand_value == 0){
+                            ball.move_up();
+                            ball.move_right();
+                        }else if (rand_value == 1){
+                            ball.move_down();
+                            ball.move_right();
+                        }else if (rand_value == 2){
+                            ball.move_up();
+                            ball.move_left();
+                        }else if (rand_value == 3){
+                            ball.move_down();
+                            ball.move_left();
+                        }
+                    }
+                    if(ball.x < 0){
+                        score[PLAYER2 - 1]++;
+                        ball.x = SCREEN_WIDTH/2;
+                        ball.y = SCREEN_HEIGHT/2;
+
+                        rand_value = rand() % 4;
+                        printf("%i", rand_value);
+                        if (rand_value == 0){
+                            ball.move_up();
+                            ball.move_right();
+                        }else if (rand_value == 1){
+                            ball.move_down();
+                            ball.move_right();
+                        }else if (rand_value == 2){
+                            ball.move_up();
+                            ball.move_left();
+                        }else if (rand_value == 3){
+                            ball.move_down();
+                            ball.move_left();
+                        }
+                    }
+
+                    // Bounce on screen
+                    if(ball.y + ball.h > SCREEN_HEIGHT){
+                        ball.move_up();
+                    }
+                    if(ball.y < 0){
+                        ball.move_down();
+                    }
+
+                    // bounce on each elements
+
+                    if(ball.speed.x < 0){
+                        if(
+                            check_collition(
+                                ball.get_rect(),
+                                player1.get_rect()
+                            )
+                        ){
+                            ball.move_right();
+                        }
+                    }
+
+                    if(ball.speed.x > 0){
+                        if(
+                            check_collition(
+                                ball.get_rect(),
+                                player2.get_rect()
+                            )
+                        ){
+                            ball.move_left();
+                        }
+                    }
+
+                    // Update world
+                    ball.update();
+                    player1.update();
+                    player2.update();
+                }else{
+                    text_white.render(
+                        0, 0,
+                        "PAUSE"
+                    );
+                    if(action->check_action(action->BUTTON_START)){
+                        pause = false;
+                    }
                 }
-            }
 
-            collition.x = 0;
-            collition.y = 0;
+                // Draw entitys
+                window.draw_rectangle(ball.get_rect(), COLOR_WHITE);
+                window.draw_rectangle(player1.get_rect(), COLOR_WHITE);
+                window.draw_rectangle(player2.get_rect(), COLOR_WHITE);
 
-            // Bounce on screen
-            if(ball.y + ball.h > SCREEN_HEIGHT){
-                collition.y = 1;
-            }
-            if(ball.y < 0){
-                collition.y = 1;
-            }
+                // Draw UI
+                width = text_white.get_text_size(
+                    std::to_string(score[PLAYER1 - 1])
+                ).w;
 
-            // bounce on each elements
+                text_white.render(
+                    SCREEN_WIDTH/2 - width -  10, 0,
+                    std::to_string(score[PLAYER1 - 1])
+                );
 
-            if(ball.speed.x < 0){
-                Verificar_collision(
-                    ball.get_rect(),
-                    player1.get_rect(),
-                    ball.speed,
-                    &collition
+                width = text_white.get_text_size(
+                    std::to_string(score[PLAYER2 - 1])
+                ).w;
+
+                text_white.render(
+                    SCREEN_WIDTH/2 + 10, 0,
+                    std::to_string(score[PLAYER2 - 1])
+                );
+                
+                window.draw_line(
+                    {SCREEN_WIDTH/2, 0},
+                    {SCREEN_WIDTH/2, SCREEN_HEIGHT},
+                    COLOR_WHITE
                 );
             }
-
-            if(ball.speed.x > 0){
-                Verificar_collision(
-                    ball.get_rect(),
-                    player2.get_rect(),
-                    ball.speed,
-                    &collition
-                );
-            }
-
-            if( (collition.x == 1) || (collition.y == 1)){
-                if(collition.x == 1){
-                    ball.speed.x = -1*ball.speed.x;
-                    collition.x = 0;
-                }
-                if(collition.y == 1){
-                    ball.speed.y = -1*ball.speed.y;
-                    collition.y = 0;
-                }
-            }
-
-            // Update world
-            ball.update();
-            player1.update();
-            player2.update();
-            
-            // Draw entitys
-            window.draw_rectangle(ball.get_rect(), COLOR_WHITE);
-            window.draw_rectangle(player1.get_rect(), COLOR_WHITE);
-            window.draw_rectangle(player2.get_rect(), COLOR_WHITE);
-
-            // Draw UI
-            int width = 0;
-            width = text_white.get_text_size(
-                std::to_string(score[PLAYER1 - 1])
-            ).w;
-
-            text_white.render(
-                SCREEN_WIDTH/2 - width -  10, 0,
-                std::to_string(score[PLAYER1 - 1])
-            );
-
-            width = text_white.get_text_size(
-                std::to_string(score[PLAYER2 - 1])
-            ).w;
-
-            text_white.render(
-                SCREEN_WIDTH/2 + 10, 0,
-                std::to_string(score[PLAYER2 - 1])
-            );
-            
-            window.draw_line(
-                {SCREEN_WIDTH/2, 0},
-                {SCREEN_WIDTH/2, SCREEN_HEIGHT},
-                COLOR_WHITE
-            );
 
             window.update_screen();
         }

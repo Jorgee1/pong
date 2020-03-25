@@ -124,15 +124,16 @@ class Entity{
 
 int main( int argc, char* args[] ){
     srand (time(0));
-    int SCREEN_WIDTH  = 640;
-    int SCREEN_HEIGHT = 480;
-    int TEXT_SIZE     =  40;
+    int SCREEN_WIDTH  = 800;
+    int SCREEN_HEIGHT = 600;
+    int TEXT_SIZE =  SCREEN_HEIGHT/12;
     
-    int VEL       =  5;
-    int BALL_SIZE = 10;
+    int VEL       = SCREEN_HEIGHT/100;
+    int BALL_SIZE = SCREEN_HEIGHT/50;
 
-    int PLAYER_WIDHT  =  20;
-    int PLAYER_HEIGHT = 100;
+    int PLAYER_WIDHT  = SCREEN_HEIGHT/50;
+    int PLAYER_HEIGHT = SCREEN_HEIGHT/6;
+    int PLAYER_PADING = SCREEN_HEIGHT/10;
 
     int score[2] = {0,0};
     int rand_value = 0;
@@ -145,7 +146,8 @@ int main( int argc, char* args[] ){
 
     enum views{
         VIEW_START,
-        VIEW_GAME
+        VIEW_GAME,
+        VIEW_GAME_OVER
     };
 
     enum entity{
@@ -177,7 +179,6 @@ int main( int argc, char* args[] ){
     );
 
     rand_value = rand() % 4;
-    printf("%i\n", rand_value);
     if (rand_value == 0){
         ball.move_up();
         ball.move_right();
@@ -193,13 +194,13 @@ int main( int argc, char* args[] ){
     }
 
     player1.init(
-        0, 0,
+        PLAYER_PADING, 0,
         PLAYER_HEIGHT, PLAYER_WIDHT, {VEL, VEL},
         COLOR_WHITE
     );
     
     player2.init(
-        SCREEN_WIDTH - PLAYER_WIDHT, 0,
+        SCREEN_WIDTH - PLAYER_WIDHT - PLAYER_PADING, 0,
         PLAYER_HEIGHT, PLAYER_WIDHT, {VEL, VEL},
         COLOR_WHITE
     );
@@ -243,19 +244,24 @@ int main( int argc, char* args[] ){
                 ).w;
 
                 text_white.render(
-                    0, 0,
+                    SCREEN_WIDTH/2 - width/2, TEXT_SIZE,
                     GAME_NAME
                 );
 
+                width = text_white.get_text_size(
+                    "PRESS START"
+                ).w;
+
                 text_white.render(
-                    0, TEXT_SIZE,
+                    SCREEN_WIDTH/2 - width/2,
+                    SCREEN_HEIGHT - 2*TEXT_SIZE,
                     "PRESS START"
                 );
 
                 if(action->check_action(action->BUTTON_START)){
                     view_index = VIEW_GAME;
                 }
-            }else{
+            }else if(view_index == VIEW_GAME){
                 if(!pause){
                     //PLAYER
                     if(action->get_state(action->BUTTON_MOVE_UP)){
@@ -282,14 +288,18 @@ int main( int argc, char* args[] ){
                     }
 
                     // PC
-                    if(player2.y + (player2.h/2) + 20 < ball.y){
-                        player2.move_down();
-                    }else if(player2.y + (player2.h/2) - 20 > ball.y){
-                        player2.move_up();
+                    if (ball.speed.x>0){
+                        if(player2.y + (player2.h/2) + 20 < ball.y){
+                            player2.move_down();
+                        }else if(player2.y + (player2.h/2) - 20 > ball.y){
+                            player2.move_up();
+                        }else{
+                            player2.stop();
+                        }
                     }else{
                         player2.stop();
                     }
-                    
+
                     if(
                         (player2.y + player2.h >= SCREEN_HEIGHT) &&
                         (player2.speed.y > 0)
@@ -300,7 +310,6 @@ int main( int argc, char* args[] ){
                         player2.stop_y();
                         player2.y = 0;
                     }
-
                     // ball movement
                     
                     if(ball.x + ball.w > SCREEN_WIDTH){
@@ -382,9 +391,18 @@ int main( int argc, char* args[] ){
                     ball.update();
                     player1.update();
                     player2.update();
+
+                    if((score[PLAYER1 - 1]>=10) || (score[PLAYER2 - 1] >= 10)){
+                        view_index = VIEW_GAME_OVER;
+                    }
                 }else{
+                    width = text_white.get_text_size(
+                        "PAUSE"
+                    ).w;
+
                     text_white.render(
-                        0, 0,
+                        SCREEN_WIDTH/2 - width/2,
+                        SCREEN_HEIGHT/2 - TEXT_SIZE/2,
                         "PAUSE"
                     );
                     if(action->check_action(action->BUTTON_START)){
@@ -421,6 +439,47 @@ int main( int argc, char* args[] ){
                     {SCREEN_WIDTH/2, SCREEN_HEIGHT},
                     COLOR_WHITE
                 );
+            }else if(view_index == VIEW_GAME_OVER){
+                width = text_white.get_text_size(
+                    "GAME OVER"
+                ).w;
+
+                text_white.render(
+                    SCREEN_WIDTH/2 - width/2, TEXT_SIZE,
+                    "GAME OVER"
+                );
+
+                width = text_white.get_text_size(
+                    "PRESS START"
+                ).w;
+
+                text_white.render(
+                    SCREEN_WIDTH/2 - width/2,
+                    SCREEN_HEIGHT - 2*TEXT_SIZE,
+                    "PRESS START"
+                );
+
+                if(action->check_action(action->BUTTON_START)){
+                    view_index = VIEW_START;
+                    score[PLAYER1 - 1] = 0;
+                    score[PLAYER2 - 1] = 0;
+                    rand_value = rand() % 4;
+                    ball.x = SCREEN_WIDTH/2;
+                    ball.y = SCREEN_HEIGHT/2;
+                    if (rand_value == 0){
+                        ball.move_up();
+                        ball.move_right();
+                    }else if (rand_value == 1){
+                        ball.move_down();
+                        ball.move_right();
+                    }else if (rand_value == 2){
+                        ball.move_up();
+                        ball.move_left();
+                    }else if (rand_value == 3){
+                        ball.move_down();
+                        ball.move_left();
+                    }
+                }
             }
 
             window.update_screen();

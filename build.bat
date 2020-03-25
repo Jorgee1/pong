@@ -21,6 +21,6 @@ xcopy /s libraries\*.dll %BUILD_FOLDER%\ /Y
 mkdir %BUILD_FOLDER%\asset
 xcopy /s asset %BUILD_FOLDER%\asset /Y
 
-cl %FLAGS% %CPP_FILES% /Fe%BUILD_FOLDER%\%GAME_NAME% %INCLUDES% %LIBS% /link %LIB_PATH% /SUBSYSTEM:CONSOLE
+cl %FLAGS% %CPP_FILES% /Fe%BUILD_FOLDER%\%GAME_NAME% %INCLUDES% %LIBS% /link %LIB_PATH% /SUBSYSTEM:WINDOWS
 
 del *.obj

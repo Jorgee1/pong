@@ -91,6 +91,8 @@ void TextureBlock::create_texture(SDL_Color color, SDL_Rect rect){
 
 
 TextureText::TextureText(){
+    SDL_Color bbox_color = {0xFF, 0xFF, 0xFF, 0xFF};
+    bool bbox_flag = false;
     for(int i=0; i<128; i++){
         texture_chars[i].renderer = renderer;
     }
@@ -101,6 +103,9 @@ TextureText::TextureText(SDL_Renderer* renderer, std::string path, SDL_Color col
 }
 
 void TextureText::init(SDL_Renderer* renderer, std::string path, SDL_Color color, int size){
+    SDL_Color bbox_color = {0xFF, 0xFF, 0xFF, 0xFF};
+    bool bbox_flag = false;
+    
     this->renderer = renderer;
 
     TTF_Font* font = TTF_OpenFont(path.c_str(), size);
@@ -152,14 +157,25 @@ Texture* TextureText::char_to_texture(char character){
     return &texture_chars[temp_char];
 }
 
-void TextureText::render(int x, int y, std::string text, bool background_box, SDL_Color box_color){
+void TextureText::render(
+        int x, int y,
+        std::string text,
+        int horizontal_p
+){
+    int width = get_text_size(text).w;
 
-    if(background_box){
+    if(horizontal_p == CENTER){
+        x = x - width/2;
+    }else if (horizontal_p == LEFT){
+        x = x - width;
+    }
+    
+    if(bbox_flag){
         SDL_Rect size = get_text_size(text);
         size.x = x;
         size.y = y;
 
-        SDL_SetRenderDrawColor(renderer, box_color.r, box_color.g, box_color.b, box_color.a);
+        SDL_SetRenderDrawColor(renderer, bbox_color.r, bbox_color.g, bbox_color.b, bbox_color.a);
         SDL_RenderFillRect(renderer, &size);
     }
 

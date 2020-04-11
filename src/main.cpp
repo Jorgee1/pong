@@ -205,8 +205,6 @@ int main( int argc, char* args[] ){
         COLOR_WHITE
     );
     
-    SDL_Point collition;
-    
     Window window(
         GAME_NAME.c_str(),
         SCREEN_WIDTH,
@@ -239,23 +237,17 @@ int main( int argc, char* args[] ){
         }else{
             window.clear_screen();
             if(view_index == VIEW_START){
-                width = text_white.get_text_size(
-                    GAME_NAME
-                ).w;
-
                 text_white.render(
-                    SCREEN_WIDTH/2 - width/2, TEXT_SIZE,
-                    GAME_NAME
+                    SCREEN_WIDTH/2, TEXT_SIZE,
+                    GAME_NAME,
+                    text_white.CENTER
                 );
-
-                width = text_white.get_text_size(
-                    "PRESS START"
-                ).w;
 
                 text_white.render(
                     SCREEN_WIDTH/2 - width/2,
                     SCREEN_HEIGHT - 2*TEXT_SIZE,
-                    "PRESS START"
+                    "PRESS START",
+                    text_white.CENTER
                 );
 
                 if(action->check_action(action->BUTTON_START)){
@@ -318,7 +310,6 @@ int main( int argc, char* args[] ){
                         ball.y = SCREEN_HEIGHT/2;
 
                         rand_value = rand() % 4;
-                        printf("%i", rand_value);
                         if (rand_value == 0){
                             ball.move_up();
                             ball.move_right();
@@ -339,7 +330,6 @@ int main( int argc, char* args[] ){
                         ball.y = SCREEN_HEIGHT/2;
 
                         rand_value = rand() % 4;
-                        printf("%i", rand_value);
                         if (rand_value == 0){
                             ball.move_up();
                             ball.move_right();
@@ -396,14 +386,11 @@ int main( int argc, char* args[] ){
                         view_index = VIEW_GAME_OVER;
                     }
                 }else{
-                    width = text_white.get_text_size(
-                        "PAUSE"
-                    ).w;
-
                     text_white.render(
-                        SCREEN_WIDTH/2 - width/2,
+                        SCREEN_WIDTH/2,
                         SCREEN_HEIGHT/2 - TEXT_SIZE/2,
-                        "PAUSE"
+                        "PAUSE",
+                        text_white.CENTER
                     );
                     if(action->check_action(action->BUTTON_START)){
                         pause = false;
@@ -416,18 +403,11 @@ int main( int argc, char* args[] ){
                 window.draw_rectangle(player2.get_rect(), COLOR_WHITE);
 
                 // Draw UI
-                width = text_white.get_text_size(
-                    std::to_string(score[PLAYER1 - 1])
-                ).w;
-
                 text_white.render(
-                    SCREEN_WIDTH/2 - width -  10, 0,
-                    std::to_string(score[PLAYER1 - 1])
+                    SCREEN_WIDTH/2-  10, 0,
+                    std::to_string(score[PLAYER1 - 1]),
+                    text_white.LEFT
                 );
-
-                width = text_white.get_text_size(
-                    std::to_string(score[PLAYER2 - 1])
-                ).w;
 
                 text_white.render(
                     SCREEN_WIDTH/2 + 10, 0,
@@ -440,23 +420,17 @@ int main( int argc, char* args[] ){
                     COLOR_WHITE
                 );
             }else if(view_index == VIEW_GAME_OVER){
-                width = text_white.get_text_size(
-                    "GAME OVER"
-                ).w;
-
                 text_white.render(
-                    SCREEN_WIDTH/2 - width/2, TEXT_SIZE,
-                    "GAME OVER"
+                    SCREEN_WIDTH/2, TEXT_SIZE,
+                    "GAME OVER",
+                    text_white.CENTER
                 );
 
-                width = text_white.get_text_size(
-                    "PRESS START"
-                ).w;
-
                 text_white.render(
-                    SCREEN_WIDTH/2 - width/2,
+                    SCREEN_WIDTH/2,
                     SCREEN_HEIGHT - 2*TEXT_SIZE,
-                    "PRESS START"
+                    "PRESS START",
+                    text_white.CENTER
                 );
 
                 if(action->check_action(action->BUTTON_START)){

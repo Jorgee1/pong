@@ -45,6 +45,14 @@ class TextureBlock: public Texture{
 class TextureText{
     public:
         SDL_Renderer* renderer;
+        SDL_Color bbox_color;
+        bool bbox_flag;
+        
+        enum h_pos{
+            CENTER,
+            LEFT,
+            RIGHT
+        };
 
         TextureText();
         TextureText(
@@ -65,11 +73,7 @@ class TextureText{
         void render(
             int, int,
             std::string,
-            bool background_box = false,
-            SDL_Color box_color = {
-                0xFF, 0xFF, 0xFF,
-                0xFF
-            }
+            int horizontal_p = RIGHT
         );
 
         SDL_Rect get_text_size(std::string);

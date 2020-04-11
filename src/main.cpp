@@ -425,7 +425,7 @@ int main( int argc, char* args[] ){
             }
 
             window.update_screen();
-            
+            /** Record
             SDL_Surface *sshot = SDL_CreateRGBSurface(0,
                 SCREEN_WIDTH, SCREEN_HEIGHT, 32,
                 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000
@@ -440,7 +440,7 @@ int main( int argc, char* args[] ){
             );
             
 
-            /** Record
+
             sprintf(buffer, "%06d", img_index);
             std::string str(buffer);
             std::string str_thing = "cap/cap_"+ str + ".bmp";

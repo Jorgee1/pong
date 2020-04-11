@@ -38,6 +38,7 @@
 
 build/
 libraries/
+cap/
 
 *.zip
 

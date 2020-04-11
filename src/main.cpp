@@ -153,8 +153,12 @@ int main( int argc, char* args[] ){
         SDL_SCANCODE_LEFT,   // BUTTON_MOVE_LEFT
         SDL_SCANCODE_RIGHT   // BUTTON_MOVE_RIGHT
     );
-
-
+    
+    /** Record
+    int img_index = 0;
+    char buffer[256];
+    SDL_Rect thing = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
+    **/
     ref_timer = SDL_GetTicks();
     while(exit == false){
         if(window.check_exit()){
@@ -420,9 +424,32 @@ int main( int argc, char* args[] ){
                 }
             }
 
-
             window.update_screen();
+            
+            SDL_Surface *sshot = SDL_CreateRGBSurface(0,
+                SCREEN_WIDTH, SCREEN_HEIGHT, 32,
+                0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000
+            );
+
+
+            SDL_RenderReadPixels(
+                window.get_render(),
+                &thing,
+                SDL_PIXELFORMAT_ARGB8888,
+                sshot->pixels, sshot->pitch
+            );
+            
+
+            /** Record
+            sprintf(buffer, "%06d", img_index);
+            std::string str(buffer);
+            std::string str_thing = "cap/cap_"+ str + ".bmp";
+            SDL_SaveBMP(sshot, str_thing.c_str());
+            SDL_FreeSurface(sshot);
+            img_index++;
+            **/
         }
+
     }
     return 0;
 }

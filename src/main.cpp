@@ -5,11 +5,156 @@
 #include <string>
 #include <stdlib.h>
 #include <ctime>
+#include <vector>
 
 #include "window.hpp"
 #include "texture.hpp"
 #include "action.hpp"
 #include "entity.hpp"
+
+
+class Options{
+    public:
+        std::vector<std::string> options;
+        int index;
+        bool wrap;
+        Options(){
+            index = 0;
+            wrap = false;
+        }
+
+        void add(std::string option){
+            options.push_back(option);
+        }
+
+        void next(){
+            if(index < options.size() - 1){
+                index++;
+            }else if(wrap){
+                index = 0;
+            }
+        }
+        
+        void prev(){
+            if(index > 0){
+                index--;
+            }else if(wrap){
+                index = options.size() - 1;
+            }
+        }
+
+};
+
+class ConfigMenu{
+    public:
+        int id;
+        SDL_Renderer* renderer;
+        TextureText* text_normal;
+        TextureText* text_selected;
+        
+        Options config_menu;
+        Options config_menu_op;
+        Options config_menu_op2;
+        Options config_menu_op3;
+                
+        enum config_menu_ids{
+            CONFIG_OP1,
+            CONFIG_OP2,
+            CONFIG_OP3,
+            CONFIG_RETURN,
+        };
+
+        enum config_menu_op1_ids{
+            CONFIG_OP1_OP1,
+            CONFIG_OP1_OP2,
+            CONFIG_OP1_OP3,
+        };
+        
+        enum config_menu_op2_ids{
+            CONFIG_OP2_OP1,
+            CONFIG_OP2_OP2,
+            CONFIG_OP2_OP3,
+        };
+                
+        enum config_menu_op3_ids{
+            CONFIG_OP3_OP1,
+            CONFIG_OP3_OP2,
+            CONFIG_OP3_OP3,
+        };
+        
+        
+        ConfigMenu(){
+            renderer      = NULL;
+            text_normal   = NULL;
+            text_selected = NULL;
+            id            =   -1;
+        }
+        
+        void init(id, SDL_Renderer* renderer, TextureText* text_normal, TextureText* text_selected){
+            this->renderer      =      renderer;
+            this->text_normal   =   text_normal;
+            this->text_selected = text_selected;
+            this->id            =            id;
+            
+            config_menu.add("Res");
+            config_menu.add("OP2");
+            config_menu.add("OP3");
+            config_menu.add("Return");
+            config_menu.index = CONFIG_OP1;
+            
+            config_menu_op1.add("640x480");
+            config_menu_op1.add("800x800");
+            config_menu_op1.add("1600x900");
+            config_menu_op1.index = CONFIG_OP1_OP1;
+
+            config_menu_op2.add("arx");
+            config_menu_op2.add("mix");
+            config_menu_op2.add("asdf");
+            config_menu_op2.index = CONFIG_OP2_OP1;
+
+            config_menu_op3.add("x2");
+            config_menu_op3.add("x4");
+            config_menu_op3.add("x6");
+            config_menu_op3.index = CONFIG_OP3_OP1;
+        }
+        
+        void render(){
+            for(int i=0; i<config_menu.options.size(); i++){
+                if(config_menu.index == i){
+                    text_selected->render(
+                        10, 10 + (i)*text_selected->size,
+                        config_menu.options[i],
+                        text_selected->RIGHT
+                    );
+                }else{
+                    text_normal->render(
+                        10, 10 + (i)*text_normal->size,
+                        config_menu.options[i],
+                        text_normal->RIGHT
+                    );
+                }
+            }
+            
+            text_normal->render(
+                100, 10,
+                config_menu_op1.options[config_menu_op1.index],
+                text_normal->RIGHT
+            );
+            
+            text_normal->render(
+                100, 10 + text_normal->size,
+                config_menu_op2.options[config_menu_op2.index],
+                text_normal->RIGHT
+            );
+            
+            text_normal->render(
+                100, 10 + 2*text_normal->size,
+                config_menu_op3.options[config_menu_op3.index],
+                text_normal->RIGHT
+            );
+        }
+};
+
 
 bool check_collition(
         SDL_Rect A,
@@ -53,11 +198,8 @@ int main( int argc, char* args[] ){
     int WIN_CONDITION = 3;
     int score[2] = {0,0};
 
-
-
     Uint32 start_view_timer = 600;
 
- 
     bool exit  = false;
     bool pause = false;
 
@@ -72,18 +214,34 @@ int main( int argc, char* args[] ){
     enum views{
         VIEW_START,
         VIEW_GAME,
-        VIEW_GAME_OVER
+        VIEW_OPTIONS,
+        VIEW_GAME_OVER,
+        VIEW_CONFIG
     };
     
-    enum game_over_options{
-        YES,
-        NO,
-        TOTAL_OPTIONS
+    
+    enum game_over_menu_ids{
+        GAME_OVER_YES,
+        GAME_OVER_NO
     };
+    Options game_over_menu;
+    game_over_menu.add("YES");
+    game_over_menu.add("NO");
+
+    
+    enum pause_menu_ids{
+        PAUSE_CONTINUE,
+        PAUSE_OPTIONS,
+        PAUSE_EXIT,
+    };
+    Options pause_menu;
+    pause_menu.add("Continue");
+    pause_menu.add("Options");
+    pause_menu.add("Exit");
+    pause_menu.index = PAUSE_CONTINUE;
     
     int view_index = VIEW_START;
-    int game_over_selector = NO;
-    
+      
     std::string GAME_NAME = "PONG";
     std::string PATH(SDL_GetBasePath());
 
@@ -154,12 +312,16 @@ int main( int argc, char* args[] ){
         SDL_SCANCODE_RIGHT   // BUTTON_MOVE_RIGHT
     );
     
-    /** Record
-    int img_index = 0;
-    char buffer[256];
-    SDL_Rect thing = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
-    **/
+    ConfigMenu config_menu;
+    config_menu.init(
+        VIEW_CONFIG,
+        window.get_render(),
+        &text_white,
+        &text_red
+    );
+    
     ref_timer = SDL_GetTicks();
+
     while(exit == false){
         if(window.check_exit()){
             exit = true;
@@ -171,7 +333,26 @@ int main( int argc, char* args[] ){
                 case VIEW_GAME:{
                     if(pause){
                         if(action->check_action(action->BUTTON_START)){
-                            pause = false;
+                            
+                            switch(pause_menu.index){
+                                case PAUSE_CONTINUE:{
+                                    pause = false;
+                                    break;
+                                }
+                                case PAUSE_OPTIONS:{
+                                    view_index = config_menu.id;
+                                    break;
+                                }
+                                case PAUSE_EXIT:{
+                                    exit = true;
+                                    break;
+                                }
+                            }
+                                                  
+                        }else if(action->check_action(action->BUTTON_MOVE_DOWN)){
+                            pause_menu.next();
+                        }else if(action->check_action(action->BUTTON_MOVE_UP)){
+                            pause_menu.prev();
                         }
                     }else{
                         //PLAYER
@@ -224,14 +405,12 @@ int main( int argc, char* args[] ){
                         // ball movement
                         
                         if(ball.x + ball.w > SCREEN_WIDTH){
-                            printf("HAI\n");
                             score[PLAYER1 - 1]++;
                             ball.x = SCREEN_WIDTH/2;
                             ball.y = rand() % SCREEN_HEIGHT;
                             ball.reset_direction();
                         }
                         if(ball.x < 0){
-                            printf("IEE\n");
                             score[PLAYER2 - 1]++;
                             ball.x = SCREEN_WIDTH/2;
                             ball.y = rand() % SCREEN_HEIGHT;
@@ -275,7 +454,7 @@ int main( int argc, char* args[] ){
                             (score[PLAYER2 - 1] >= WIN_CONDITION)
                         ){
                             view_index = VIEW_GAME_OVER;
-                            game_over_selector = NO;
+                            game_over_menu.index = GAME_OVER_YES;
                         }
                     }
                     break;
@@ -290,7 +469,7 @@ int main( int argc, char* args[] ){
                 
                 case VIEW_GAME_OVER:{
                     if(action->check_action(action->BUTTON_START)){
-                        if(game_over_selector==NO){
+                        if(game_over_menu.index == GAME_OVER_YES){
                             view_index = VIEW_START;
                             score[PLAYER1 - 1] = 0;
                             score[PLAYER2 - 1] = 0;
@@ -301,15 +480,53 @@ int main( int argc, char* args[] ){
                             exit = true;
                         }
                     }else if(action->check_action(action->BUTTON_MOVE_UP)){
-                        game_over_selector++;
-                        if(game_over_selector >= TOTAL_OPTIONS){
-                            game_over_selector = 0;
-                        }
+                        game_over_menu.prev();
                     }else if(action->check_action(action->BUTTON_MOVE_DOWN)){
-                        game_over_selector--;
-                        if(game_over_selector < 0){
-                            game_over_selector = TOTAL_OPTIONS-1;
+                        game_over_menu.next();
+                    }
+                    break;
+                }
+                case config_menu.id:{
+                    if(action->check_action(action->BUTTON_START)){
+                        if(config_menu.config_menu.index == ConfigMenu::CONFIG_RETURN){
+                            view_index = VIEW_GAME;
                         }
+                    }else if(action->check_action(action->BUTTON_MOVE_UP)){
+                        config_menu.config_menu.prev();
+                    }else if(action->check_action(action->BUTTON_MOVE_DOWN)){
+                        config_menu.config_menu.next();
+                    }else if(action->check_action(action->BUTTON_MOVE_LEFT)){
+                        switch(config_menu.config_menu.index){
+                            case ConfigMenu::CONFIG_OP1:{
+                                config_menu.config_menu_op1.prev();
+                                break;
+                            }
+                            case ConfigMenu::CONFIG_OP2:{
+                                config_menu.config_menu_op2.prev();
+                                break;
+                            }
+                            case ConfigMenu::CONFIG_OP3:{
+                                config_menu.config_menu_op3.prev();
+                                break;
+                            }
+                        }
+
+                    }if(action->check_action(action->BUTTON_MOVE_RIGHT)){
+                        switch(config_menu.config_menu.index){
+                            case ConfigMenu::CONFIG_OP1:{
+                                config_menu.config_menu_op1.next();
+                                break;
+                            }
+                            case ConfigMenu::CONFIG_OP2:{
+                                config_menu.config_menu_op2.next();
+                                break;
+                            }
+                            case ConfigMenu::CONFIG_OP3:{
+                                config_menu.config_menu_op3.next();
+                                break;
+                            }
+                        }
+
                     }
                     break;
                 }
@@ -370,12 +587,32 @@ int main( int argc, char* args[] ){
                     );
                     
                     if(pause){
+
                         text_white.render(
                             SCREEN_WIDTH/2,
                             SCREEN_HEIGHT/2 - TEXT_SIZE/2,
                             "PAUSE",
                             text_white.CENTER
                         );
+
+
+                        for(int i=0; i<pause_menu.options.size(); i++){
+                            if(pause_menu.index == i){
+                                text_red.render(
+                                    SCREEN_WIDTH/2,
+                                    SCREEN_HEIGHT/2 + (2 + i) *TEXT_SIZE,
+                                    pause_menu.options[i],
+                                    text_red.CENTER
+                                );
+                            }else{
+                                text_white.render(
+                                    SCREEN_WIDTH/2,
+                                    SCREEN_HEIGHT/2 + (2+i)*TEXT_SIZE,
+                                    pause_menu.options[i],
+                                    text_white.CENTER
+                                );
+                            }
+                        }
                     }
                     break;
                 }
@@ -388,66 +625,36 @@ int main( int argc, char* args[] ){
 
                     text_white.render(
                         SCREEN_WIDTH/2, 3*TEXT_SIZE,
-                        "Quit?",
+                        "Continue?",
                         text_white.CENTER
                     );
 
-                    if(game_over_selector==YES){
-                        text_red.render(
-                            SCREEN_WIDTH/2, 5*TEXT_SIZE,
-                            "Yes",
-                            text_red.CENTER
-                        );
-                    }else{
-                        text_white.render(
-                            SCREEN_WIDTH/2, 5*TEXT_SIZE,
-                            "Yes",
-                            text_white.CENTER
-                        );
-                    }
-                    
-                    if(game_over_selector==NO){
-                        text_red.render(
-                            SCREEN_WIDTH/2, 6*TEXT_SIZE,
-                            "No",
-                            text_red.CENTER
-                        );
-                    }else{
-                        text_white.render(
-                            SCREEN_WIDTH/2, 6*TEXT_SIZE,
-                            "No",
-                            text_white.CENTER
-                        );
+                    for(int i=0; i<game_over_menu.options.size(); i++){
+                        if(game_over_menu.index == i){
+                            text_red.render(
+                                SCREEN_WIDTH/2, (5 + i) *TEXT_SIZE,
+                                game_over_menu.options[i],
+                                text_red.CENTER
+                            );
+                        }else{
+                            text_white.render(
+                                SCREEN_WIDTH/2, (5 + i)*TEXT_SIZE,
+                                game_over_menu.options[i],
+                                text_white.CENTER
+                            );
+                        }
                     }
 
+
+                    break;
+                }
+                case config_menu.id:{              
+                    config_menu.render();
                     break;
                 }
             }
 
             window.update_screen();
-            /** Record
-            SDL_Surface *sshot = SDL_CreateRGBSurface(0,
-                SCREEN_WIDTH, SCREEN_HEIGHT, 32,
-                0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000
-            );
-
-
-            SDL_RenderReadPixels(
-                window.get_render(),
-                &thing,
-                SDL_PIXELFORMAT_ARGB8888,
-                sshot->pixels, sshot->pitch
-            );
-            
-
-
-            sprintf(buffer, "%06d", img_index);
-            std::string str(buffer);
-            std::string str_thing = "cap/cap_"+ str + ".bmp";
-            SDL_SaveBMP(sshot, str_thing.c_str());
-            SDL_FreeSurface(sshot);
-            img_index++;
-            **/
         }
 
     }

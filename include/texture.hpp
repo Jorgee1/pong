@@ -47,7 +47,7 @@ class TextureText{
         SDL_Renderer* renderer;
         SDL_Color bbox_color;
         bool bbox_flag;
-        
+        int size;
         enum h_pos{
             CENTER,
             LEFT,

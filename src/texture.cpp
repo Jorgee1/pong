@@ -91,8 +91,9 @@ void TextureBlock::create_texture(SDL_Color color, SDL_Rect rect){
 
 
 TextureText::TextureText(){
-    SDL_Color bbox_color = {0xFF, 0xFF, 0xFF, 0xFF};
-    bool bbox_flag = false;
+    bbox_color = {0xFF, 0xFF, 0xFF, 0xFF};
+    bbox_flag  = false;
+    size       = 0;
     for(int i=0; i<128; i++){
         texture_chars[i].renderer = renderer;
     }
@@ -103,9 +104,9 @@ TextureText::TextureText(SDL_Renderer* renderer, std::string path, SDL_Color col
 }
 
 void TextureText::init(SDL_Renderer* renderer, std::string path, SDL_Color color, int size){
-    SDL_Color bbox_color = {0xFF, 0xFF, 0xFF, 0xFF};
-    bool bbox_flag = false;
-    
+    bbox_color = {0xFF, 0xFF, 0xFF, 0xFF};
+    bbox_flag = false;
+    this->size = size;
     this->renderer = renderer;
 
     TTF_Font* font = TTF_OpenFont(path.c_str(), size);

@@ -90,32 +90,32 @@ class ConfigMenu{
             id            =   -1;
         }
         
-        void init(id, SDL_Renderer* renderer, TextureText* text_normal, TextureText* text_selected){
+        void init(int id, SDL_Renderer* renderer, TextureText* text_normal, TextureText* text_selected){
             this->renderer      =      renderer;
             this->text_normal   =   text_normal;
             this->text_selected = text_selected;
             this->id            =            id;
             
-            config_menu.add("Res");
-            config_menu.add("OP2");
-            config_menu.add("OP3");
-            config_menu.add("Return");
-            config_menu.index = CONFIG_OP1;
+            this->config_menu.add("Res");
+            this->config_menu.add("OP2");
+            this->config_menu.add("OP3");
+            this->config_menu.add("Return");
+            this->config_menu.index = CONFIG_OP1;
             
-            config_menu_op1.add("640x480");
-            config_menu_op1.add("800x800");
-            config_menu_op1.add("1600x900");
-            config_menu_op1.index = CONFIG_OP1_OP1;
+            this->config_menu_op.add("640x480");
+            this->config_menu_op.add("800x800");
+            this->config_menu_op.add("1600x900");
+            this->config_menu_op.index = CONFIG_OP1_OP1;
 
-            config_menu_op2.add("arx");
-            config_menu_op2.add("mix");
-            config_menu_op2.add("asdf");
-            config_menu_op2.index = CONFIG_OP2_OP1;
+            this->config_menu_op2.add("arx");
+            this->config_menu_op2.add("mix");
+            this->config_menu_op2.add("asdf");
+            this->config_menu_op2.index = CONFIG_OP2_OP1;
 
-            config_menu_op3.add("x2");
-            config_menu_op3.add("x4");
-            config_menu_op3.add("x6");
-            config_menu_op3.index = CONFIG_OP3_OP1;
+            this->config_menu_op3.add("x2");
+            this->config_menu_op3.add("x4");
+            this->config_menu_op3.add("x6");
+            this->config_menu_op3.index = CONFIG_OP3_OP1;
         }
         
         void render(){
@@ -137,7 +137,7 @@ class ConfigMenu{
             
             text_normal->render(
                 100, 10,
-                config_menu_op1.options[config_menu_op1.index],
+                config_menu_op.options[config_menu_op.index],
                 text_normal->RIGHT
             );
             
@@ -486,7 +486,7 @@ int main( int argc, char* args[] ){
                     }
                     break;
                 }
-                case config_menu.id:{
+                case VIEW_CONFIG:{
                     if(action->check_action(action->BUTTON_START)){
                         if(config_menu.config_menu.index == ConfigMenu::CONFIG_RETURN){
                             view_index = VIEW_GAME;
@@ -498,7 +498,7 @@ int main( int argc, char* args[] ){
                     }else if(action->check_action(action->BUTTON_MOVE_LEFT)){
                         switch(config_menu.config_menu.index){
                             case ConfigMenu::CONFIG_OP1:{
-                                config_menu.config_menu_op1.prev();
+                                config_menu.config_menu_op.prev();
                                 break;
                             }
                             case ConfigMenu::CONFIG_OP2:{
@@ -514,7 +514,7 @@ int main( int argc, char* args[] ){
                     }if(action->check_action(action->BUTTON_MOVE_RIGHT)){
                         switch(config_menu.config_menu.index){
                             case ConfigMenu::CONFIG_OP1:{
-                                config_menu.config_menu_op1.next();
+                                config_menu.config_menu_op.next();
                                 break;
                             }
                             case ConfigMenu::CONFIG_OP2:{
@@ -648,7 +648,7 @@ int main( int argc, char* args[] ){
 
                     break;
                 }
-                case config_menu.id:{              
+                case VIEW_CONFIG:{              
                     config_menu.render();
                     break;
                 }

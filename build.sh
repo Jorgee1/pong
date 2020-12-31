@@ -2,8 +2,8 @@
 
 NAME="pong"
 
-COMPILER=clang++
-ext=".cpp"
+COMPILER=clang
+ext=".c"
 
 SDL_PATH=/usr/include/SDL2
 SRC_PATH=src

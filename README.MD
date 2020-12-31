@@ -1,6 +1,6 @@
 # PONG
 
-Implementation of Pong written in C++ and SDL.
+Implementation of Pong written in C and SDL.
 
 ![Alt Text](https://media.giphy.com/media/ZbgFO5zqDrj26iJJBP/giphy.gif)
 

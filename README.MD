@@ -1,6 +1,6 @@
-# PONG SDL
+# PONG
 
-Pong game written in C++ and SDL.
+Implementation of Pong written in C++ and SDL.
 
 ![Alt Text](https://media.giphy.com/media/ZbgFO5zqDrj26iJJBP/giphy.gif)
 
@@ -22,7 +22,3 @@ Firest the following packages are needed:
 ### Linux
 
 Clang is requiered and compile using make.
-
-### Windows
-
-MSVC needs to be installed. Compile using the build.bat.

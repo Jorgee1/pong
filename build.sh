@@ -38,7 +38,6 @@ fi
 
 $COMPILER $OBJS $FLAGS -o $BIN_PATH/$NAME 
 
-
 if [ -d $ASSET_PATH ]
 then
     cp -r $ASSET_PATH $BIN_PATH

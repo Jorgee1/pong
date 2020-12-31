@@ -45,3 +45,5 @@ cap/
 *.sublime-project
 *.sublime-workspace
 # End of https://www.gitignore.io/api/c++
+bin
+objs

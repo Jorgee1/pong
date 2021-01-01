@@ -18,7 +18,8 @@ Firest the following packages are needed:
 * SDL2
 * SDL_ttf
 * SDL_image
+* clang
 
 ### Linux
 
-Clang is requiered and compile using make.
+To compile use the build.sh file.

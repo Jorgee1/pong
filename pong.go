@@ -36,6 +36,8 @@ func main() {
 
 	screen.window.Show()
 
+	black := sdl.Color{0, 0, 0, 255}
+	white := sdl.Color{255, 255, 255, 255}
 
 	for screen.exit != true {
 		for {
@@ -47,10 +49,19 @@ func main() {
 				screen.exit = true
 			}
 		}
+		screen.renderer.SetDrawColor(
+			black.R,
+			black.G,
+			black.B,
+			black.A)
 		screen.renderer.Clear()
 
-
-
+		screen.renderer.SetDrawColor(
+			white.R,
+			white.G,
+			white.B,
+			white.A)
+		screen.renderer.FillRect(&sdl.Rect{0,0,100,100})
 
 
 		screen.renderer.Present()

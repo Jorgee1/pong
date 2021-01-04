@@ -1,49 +1,27 @@
+# Not sure how usfull these are
 
-# Created by https://www.gitignore.io/api/c++
-# Edit at https://www.gitignore.io/?templates=c++
+# Created by https://www.toptal.com/developers/gitignore/api/go
+# Edit at https://www.toptal.com/developers/gitignore?templates=go
 
-### C++ ###
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
+### Go ###
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
 *.so
 *.dylib
-*.dll
 
-# Fortran module files
-*.mod
-*.smod
+# Test binary, built with `go test -c`
+*.test
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
+# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-*.app
 
-build/
-libraries/
-cap/
+# Dependency directories (remove the comment below to include it)
+# vendor/
 
-*.zip
+### Go Patch ###
+/vendor/
+/Godeps/
 
-*.sublime-project
-*.sublime-workspace
-# End of https://www.gitignore.io/api/c++
-bin
-objs
+# End of https://www.toptal.com/developers/gitignore/api/go

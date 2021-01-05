@@ -1,5 +1,5 @@
 # PONG
 
-Implementation of Pong written in C and SDL.
+Implementation of Pong written in Go and SDL.
 
 Work in progress

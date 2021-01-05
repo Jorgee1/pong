@@ -1,6 +1,8 @@
 package main
 
 //import "fmt"
+import "time"
+import "math/rand"
 import "github.com/veandco/go-sdl2/sdl"
 
 
@@ -15,6 +17,8 @@ type Screen struct {
 
 func (screen *Screen) open() {
 	var err error
+	rand.Seed(time.Now().UnixNano())
+
 	sdl.Init(sdl.INIT_EVERYTHING)
 
 	screen.window, err = sdl.CreateWindow(
@@ -57,6 +61,7 @@ type Racket struct {
 
 type Ball struct {
 	box sdl.Rect
+	state int32
 	speed sdl.Point
 	speed_max int32
 }
@@ -109,11 +114,13 @@ func (l Layout) build_layout(player *Racket, cpu *Racket, ball *Ball) {
 
 
 func main() {
+	
 	black := sdl.Color{0, 0, 0, 255}
 	white := sdl.Color{255, 255, 255, 255}
 
 	screen := Screen{w: 640, h: 480, name: "Pong", exit: false}
 	screen.open()
+
 	keys := sdl.GetKeyboardState()
 
 
@@ -125,7 +132,7 @@ func main() {
 		ball_w: 30,
 		ball_h: 30,
 		speed_limit_racket: 10,
-		speed_limit_ball: 20,
+		speed_limit_ball: 5,
 		middle: sdl.Point{X: screen.w/2, Y: screen.h/2}}
 
 	player := Racket{}
@@ -155,16 +162,30 @@ func main() {
 		}
 
 		// Logistic
+		if (rand.Intn(2) == 0) {
+			ball.speed.X = ball.speed_max
+		} else {
+			ball.speed.X = -ball.speed_max
+		}
 
+		if (rand.Intn(2) == 0) {
+			ball.speed.Y = ball.speed_max
+		} else {
+			ball.speed.Y = -ball.speed_max
+		}
 
 
 
 		// Update objects
 		player.box.X += player.speed.X
 		player.box.Y += player.speed.Y
+		player.speed.X = 0
+		player.speed.Y = 0
 
 		cpu.box.X += cpu.speed.X
 		cpu.box.Y += cpu.speed.Y
+		cpu.speed.X = 0
+		cpu.speed.Y = 0
 
 		ball.box.X += ball.speed.X
 		ball.box.Y += ball.speed.Y

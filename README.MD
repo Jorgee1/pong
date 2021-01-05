@@ -1,6 +1,7 @@
 # PONG
 
 Implementation of Pong written in multiple languages.
+
 ![Alt Text](https://media.giphy.com/media/ZbgFO5zqDrj26iJJBP/giphy.gif)
 
 

@@ -141,6 +141,21 @@ func main() {
 
 	layout.build_layout(&player, &cpu, &ball)
 
+	rand_val_x := rand.Intn(2)
+	rand_val_y := rand.Intn(2)
+
+	if (rand_val_x == 0) {
+		ball.speed.X = ball.speed_max
+	} else {
+		ball.speed.X = -ball.speed_max
+	}
+
+	if (rand_val_y == 0) {
+		ball.speed.Y = ball.speed_max
+	} else {
+		ball.speed.Y = -ball.speed_max
+	}
+
 	for screen.exit != true {
 		for {
 			event := sdl.PollEvent()
@@ -162,17 +177,7 @@ func main() {
 		}
 
 		// Logistic
-		if (rand.Intn(2) == 0) {
-			ball.speed.X = ball.speed_max
-		} else {
-			ball.speed.X = -ball.speed_max
-		}
 
-		if (rand.Intn(2) == 0) {
-			ball.speed.Y = ball.speed_max
-		} else {
-			ball.speed.Y = -ball.speed_max
-		}
 
 
 

@@ -50,7 +50,13 @@ func (screen *Screen) destroy() {
 	screen.window.Destroy()
 }
 
-type Entity struct {
+type Racket struct {
+	box sdl.Rect
+	speed sdl.Point
+	speed_max int32
+}
+
+type Ball struct {
 	box sdl.Rect
 	speed sdl.Point
 	speed_max int32
@@ -59,14 +65,23 @@ type Entity struct {
 type Layout struct {
 	padding int32
 	
-	entity_w int32
-	entity_h int32
+	racket_w int32
+	racket_h int32
 
 	ball_w int32
 	ball_h int32
 
+	speed_limit_racket int32
+	speed_limit_ball int32
+
 	middle sdl.Point
 }
+
+/*
+func (l Layout) build_layout() {
+
+}
+*/
 
 func main() {
 	black := sdl.Color{0, 0, 0, 255}
@@ -78,32 +93,34 @@ func main() {
 
 
 	layout := Layout{
-		padding: 50,
-		entity_w: 30,
-		entity_h: 100,
+		padding: 100,
+		racket_w: 20,
+		racket_h: 100,
 		ball_w: 30,
 		ball_h: 30,
+		speed_limit_racket: 10,
+		speed_limit_ball: 20,
 		middle: sdl.Point{X: screen.w/2, Y: screen.h/2}}
 
-	player := Entity{}
+	player := Racket{}
 	player.box = sdl.Rect{
 		X: layout.padding,
-		Y: layout.middle.Y - layout.entity_h/2,
-		W: layout.entity_w,
-		H: layout.entity_h}
+		Y: layout.middle.Y - layout.racket_h/2,
+		W: layout.racket_w,
+		H: layout.racket_h}
 	player.speed = sdl.Point{0, 0}
-	player.speed_max = 20
+	player.speed_max = 10
 
-	cpu := Entity{}
+	cpu := Racket{}
 	cpu.box = sdl.Rect{
-		X: screen.w - layout.padding - layout.entity_w,
-		Y: layout.middle.Y - layout.entity_h/2,
-		W: layout.entity_w,
-		H: layout.entity_h}
+		X: screen.w - layout.padding - layout.racket_w,
+		Y: layout.middle.Y - layout.racket_h/2,
+		W: layout.racket_w,
+		H: layout.racket_h}
 	cpu.speed = sdl.Point{0, 0}
-	cpu.speed_max = 20
+	cpu.speed_max = 10
 
-	ball := Entity{}
+	ball := Ball{}
 	ball.box = sdl.Rect{
 		X: layout.middle.X - layout.ball_w/2,
 		Y: layout.middle.Y - layout.ball_h/2,

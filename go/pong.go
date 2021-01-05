@@ -11,10 +11,9 @@ type Screen struct {
 	exit bool
 	window *sdl.Window
 	renderer *sdl.Renderer
-	clear_color sdl.Color
 }
 
-func (screen *Screen) init() {
+func (screen *Screen) open() {
 	var err error
 	sdl.Init(sdl.INIT_EVERYTHING)
 
@@ -36,18 +35,18 @@ func (screen *Screen) init() {
 
 }
 
-func (screen *Screen) clear() {
+func (screen *Screen) set_draw_color(color sdl.Color) {
 	screen.renderer.SetDrawColor(
-		screen.clear_color.R,
-		screen.clear_color.G,
-		screen.clear_color.B,
-		screen.clear_color.A)
-	screen.renderer.Clear()
+		color.R,
+		color.G,
+		color.B,
+		color.A)
 }
 
-func (screen *Screen) destroy() {
+func (screen *Screen) close() {
 	screen.renderer.Destroy()
 	screen.window.Destroy()
+	sdl.Quit()
 }
 
 type Racket struct {
@@ -63,6 +62,8 @@ type Ball struct {
 }
 
 type Layout struct {
+	screen *Screen
+
 	padding int32
 	
 	racket_w int32
@@ -77,22 +78,47 @@ type Layout struct {
 	middle sdl.Point
 }
 
-/*
-func (l Layout) build_layout() {
 
+func (l Layout) build_layout(player *Racket, cpu *Racket, ball *Ball) {
+	player.box = sdl.Rect{
+		X: l.padding,
+		Y: l.middle.Y - l.racket_h/2,
+		W: l.racket_w,
+		H: l.racket_h}
+	player.speed = sdl.Point{}
+	player.speed_max = l.speed_limit_racket
+
+
+	cpu.box = sdl.Rect{
+		X: l.screen.w - l.padding - l.racket_w,
+		Y: l.middle.Y - l.racket_h/2,
+		W: l.racket_w,
+		H: l.racket_h}
+	cpu.speed = sdl.Point{}
+	cpu.speed_max = l.speed_limit_racket
+
+
+	ball.box = sdl.Rect{
+		X: l.middle.X - l.ball_w/2,
+		Y: l.middle.Y - l.ball_h/2,
+		W: l.ball_w,
+		H: l.ball_h}
+	ball.speed = sdl.Point{}
+	ball.speed_max = l.speed_limit_ball
 }
-*/
+
 
 func main() {
 	black := sdl.Color{0, 0, 0, 255}
 	white := sdl.Color{255, 255, 255, 255}
 
-	screen := Screen{w: 640, h: 480, name: "Pong", exit: false, clear_color: black}
-	screen.init()
+	screen := Screen{w: 640, h: 480, name: "Pong", exit: false}
+	screen.open()
 	keys := sdl.GetKeyboardState()
 
 
 	layout := Layout{
+		screen: &screen,
 		padding: 100,
 		racket_w: 20,
 		racket_h: 100,
@@ -103,31 +129,10 @@ func main() {
 		middle: sdl.Point{X: screen.w/2, Y: screen.h/2}}
 
 	player := Racket{}
-	player.box = sdl.Rect{
-		X: layout.padding,
-		Y: layout.middle.Y - layout.racket_h/2,
-		W: layout.racket_w,
-		H: layout.racket_h}
-	player.speed = sdl.Point{0, 0}
-	player.speed_max = 10
-
 	cpu := Racket{}
-	cpu.box = sdl.Rect{
-		X: screen.w - layout.padding - layout.racket_w,
-		Y: layout.middle.Y - layout.racket_h/2,
-		W: layout.racket_w,
-		H: layout.racket_h}
-	cpu.speed = sdl.Point{0, 0}
-	cpu.speed_max = 10
-
 	ball := Ball{}
-	ball.box = sdl.Rect{
-		X: layout.middle.X - layout.ball_w/2,
-		Y: layout.middle.Y - layout.ball_h/2,
-		W: layout.ball_w,
-		H: layout.ball_h}
-	ball.speed = sdl.Point{0, 0}
-	ball.speed_max = 20
+
+	layout.build_layout(&player, &cpu, &ball)
 
 	for screen.exit != true {
 		for {
@@ -154,7 +159,7 @@ func main() {
 
 
 
-		// update objects
+		// Update objects
 		player.box.X += player.speed.X
 		player.box.Y += player.speed.Y
 
@@ -165,19 +170,14 @@ func main() {
 		ball.box.Y += ball.speed.Y
 
 		// Render
-		screen.clear()
+		screen.set_draw_color(black)
+		screen.renderer.Clear()
 
-		screen.renderer.SetDrawColor(
-			white.R,
-			white.G,
-			white.B,
-			white.A)
+		screen.set_draw_color(white)
 		screen.renderer.FillRects([]sdl.Rect{player.box, cpu.box, ball.box})
 
 		screen.renderer.Present()
 	}
 
-	screen.destroy()
-
-	sdl.Quit()
+	screen.close()
 }

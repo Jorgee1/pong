@@ -168,6 +168,7 @@ func main() {
 		}
 
 		// Check input
+
 		if keys[sdl.SCANCODE_W] == 1 {
 			player.speed.Y = -player.speed_max
 		} else if keys[sdl.SCANCODE_S] == 1 {
@@ -176,9 +177,18 @@ func main() {
 			player.speed.Y = 0
 		}
 
-		// Logistic
+		// Collition Detection
 
 
+		if (ball.box.X <= 0 || ball.box.X + ball.box.W >= screen.w) {
+			ball.speed.X = -ball.speed.X
+		}
+
+
+
+		if (ball.box.Y <= 0 || ball.box.Y + ball.box.H >= screen.h) {
+			ball.speed.Y = -ball.speed.Y
+		}
 
 
 		// Update objects

@@ -1,6 +1,6 @@
 package main
 
-//import "fmt"
+
 import "time"
 import "math/rand"
 import "github.com/veandco/go-sdl2/sdl"
@@ -32,6 +32,7 @@ func (screen *Screen) open() {
 
 	screen.renderer, err = sdl.CreateRenderer(
 		screen.window, -1,
+		//sdl.RENDERER_ACCELERATED)
 		sdl.RENDERER_ACCELERATED | sdl.RENDERER_PRESENTVSYNC)
 	if err != nil { panic(err) }
 
@@ -167,7 +168,6 @@ func main() {
 			}
 		}
 
-		// Check input
 
 		if keys[sdl.SCANCODE_W] == 1 {
 			player.speed.Y = -player.speed_max
@@ -179,12 +179,9 @@ func main() {
 
 		// Collition Detection
 
-
 		if (ball.box.X <= 0 || ball.box.X + ball.box.W >= screen.w) {
 			ball.speed.X = -ball.speed.X
 		}
-
-
 
 		if (ball.box.Y <= 0 || ball.box.Y + ball.box.H >= screen.h) {
 			ball.speed.Y = -ball.speed.Y
